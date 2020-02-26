@@ -1,8 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/colorPrimary"/>
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <solid android:color="@color/colorPrimary"/>
 
-    <corners
-        android:bottomRightRadius="72dp"
-        android:bottomLeftRadius="72dp"/>
-</shape>
+            <corners
+                android:bottomRightRadius="64dp"
+                android:bottomLeftRadius="64dp"/>
+        </shape>
+    </item>
+    <item
+        android:drawable="@drawable/ic_shopping_cart_background"
+        android:gravity="center"
+    />
+</layer-list>
