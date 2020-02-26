@@ -112,7 +112,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner {
     {
         configureCamera()
 
-        base_vertical_container.visibility = INVISIBLE
+        cart_container.visibility = INVISIBLE
         view_finder.visibility = VISIBLE
 
         mCameraProviderFuture.addListener(Runnable {
@@ -128,7 +128,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner {
 
     private fun stopCamera()
     {
-        base_vertical_container.visibility = VISIBLE
+        cart_container.visibility = VISIBLE
         view_finder.visibility = INVISIBLE
 
         mCameraProviderFuture.addListener(Runnable {
