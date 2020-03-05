@@ -4,7 +4,7 @@
     <Transition
         motion:constraintSetStart="@id/cartShowing"
         motion:constraintSetEnd="@+id/cartHidden"
-        motion:duration="2000">
+        motion:duration="750">
         <OnSwipe motion:touchAnchorId="@+id/cart_container"
             motion:touchAnchorSide="bottom"
             motion:dragDirection="dragUp"/>

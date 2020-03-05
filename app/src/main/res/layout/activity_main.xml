@@ -2,7 +2,7 @@
 <androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/base_motionlayout"
+    android:id="@+id/base_container"
     app:layoutDescription="@xml/swipe_to_scan_scene"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,10 +11,9 @@
 
     <androidx.camera.view.PreviewView
         android:id="@+id/view_finder"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/critical_info_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -27,7 +26,6 @@
         android:elevation="1dp"
         android:orientation="vertical"
         android:translationZ="2dp"
-        android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@+id/critical_info_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -140,7 +138,7 @@
         layout="@layout/critical_info"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/base_vertical_container"></include>
+        app:layout_constraintTop_toBottomOf="@+id/cart_container"></include>
 
 
 </androidx.constraintlayout.motion.widget.MotionLayout>

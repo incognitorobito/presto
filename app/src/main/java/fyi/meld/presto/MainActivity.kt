@@ -1,17 +1,11 @@
 package fyi.meld.presto
 
 import android.Manifest
-import android.animation.ObjectAnimator
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.nfc.Tag
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.AttributeSet
 import android.util.Log
-import android.util.Size
-import android.view.Display
 import android.view.View
 import android.view.View.*
 import android.widget.Toast
@@ -20,7 +14,6 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.view.PreviewView
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -31,20 +24,22 @@ import fyi.meld.presto.model.StoreTrip
 import kotlinx.android.synthetic.main.activity_main.*
 
 
-
 class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, MotionLayout.TransitionListener {
 
     var mCurrentTrip = StoreTrip()
-    var mIsCameraActive = false;
-    private lateinit var mCameraProviderFuture : ListenableFuture<ProcessCameraProvider>
-    private lateinit var mPreview : Preview
-    private lateinit var mCameraSelector : CameraSelector
+    var mIsCameraRunning = false;
+    var mInitialLayoutState : Int = -1;
+    var mLastAnticipatedLayoutState : Int = -1;
+
+    lateinit var mCameraProviderFuture : ListenableFuture<ProcessCameraProvider>
+    lateinit var mPreview : Preview
+    lateinit var mCameraSelector : CameraSelector
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        base_motionlayout.setTransitionListener(this)
+        base_container.setTransitionListener(this)
         new_item_btn.setOnClickListener(this)
 
         if(!hasPermissions())
@@ -53,6 +48,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
         }
 
         mCameraProviderFuture = ProcessCameraProvider.getInstance(this);
+        mInitialLayoutState = base_container.currentState
     }
 
     override fun onClick(v: View?) {
@@ -63,25 +59,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
 
     override fun onBackPressed() {
 
-        if(mIsCameraActive)
+        if(mIsCameraRunning)
         {
-            toggleCamera()
+            base_container.transitionToStart()
         }
-
-    }
-
-    private fun toggleCamera()
-    {
-        if(mIsCameraActive == true)
-        {
-            stopCamera()
-        }
-        else
-        {
-            startCamera()
-        }
-
-        mIsCameraActive = !mIsCameraActive
 
     }
 
@@ -113,31 +94,45 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
 
     private fun startCamera()
     {
-        configureCamera()
+        view_finder.animate().
+            alpha(1.0f).
+            setDuration(Constants.CAMERA_PREVIEW_FADE_DURATION).
+            withStartAction {
+                view_finder.visibility = VISIBLE
 
-        cart_container.visibility = INVISIBLE
-        view_finder.visibility = VISIBLE
+                configureCamera()
 
-        mCameraProviderFuture.addListener(Runnable {
-            val cameraProvider = mCameraProviderFuture.get()
+                mCameraProviderFuture.addListener(Runnable {
+                    val cameraProvider = mCameraProviderFuture.get()
 
-            cameraProvider.bindToLifecycle(
-                this,
-                mCameraSelector,
-                mPreview
-            )
-        }, ContextCompat.getMainExecutor(this))
+                    cameraProvider.bindToLifecycle(
+                        this,
+                        mCameraSelector,
+                        mPreview
+                    )
+                }, ContextCompat.getMainExecutor(this))
+
+                mIsCameraRunning = true
+            }
+            .start()
     }
 
     private fun stopCamera()
     {
-        cart_container.visibility = VISIBLE
-        view_finder.visibility = INVISIBLE
+        view_finder.animate().
+            alpha(0.0f).
+            setDuration(Constants.CAMERA_PREVIEW_FADE_DURATION / 5).
+            withEndAction {
+                view_finder.visibility = INVISIBLE
 
-        mCameraProviderFuture.addListener(Runnable {
-            val cameraProvider = mCameraProviderFuture.get()
-            cameraProvider.unbindAll()
-        }, ContextCompat.getMainExecutor(this))
+                mCameraProviderFuture.addListener(Runnable {
+                    val cameraProvider = mCameraProviderFuture.get()
+                    cameraProvider.unbindAll()
+                }, ContextCompat.getMainExecutor(this))
+
+                mIsCameraRunning = false
+            }
+            .start()
     }
 
     private fun openNewItemActivity()
@@ -169,16 +164,23 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
     override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) {
     }
 
-    override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) {
+    override fun onTransitionStarted(motionLayout: MotionLayout?, startingState: Int, endingState: Int) {
 
     }
 
     override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) {
     }
 
-    override fun onTransitionCompleted(p0: MotionLayout?, p1: Int) {
-//        toggleCamera()
-        Log.d(Constants.TAG, "MotionLayout transition completed.")
+    override fun onTransitionCompleted(motionLayout: MotionLayout?, currentState: Int) {
+
+        if(currentState != mInitialLayoutState && !mIsCameraRunning)
+        {
+            startCamera()
+        }
+        else if(currentState == mInitialLayoutState && mIsCameraRunning)
+        {
+            stopCamera()
+        }
     }
 
 
