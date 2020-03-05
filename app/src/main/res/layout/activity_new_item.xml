@@ -10,7 +10,7 @@
     tools:layout_editor_absoluteY="113dp">
 
     <LinearLayout
-        android:id="@+id/linearLayout"
+        android:id="@+id/new_item_header_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -40,62 +40,126 @@
             android:textAlignment="center" />
     </LinearLayout>
 
-
     <TextView
-        android:id="@+id/details_header_text"
+        android:id="@+id/kind_header_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
         android:paddingStart="30dp"
-        android:paddingTop="15dp"
-        android:text="Details"
+        android:paddingEnd="30dp"
+        android:text="Category"
         android:textAppearance="@style/mediumHeader"
         android:textColor="@color/standardDarkTextColor"
-        app:layout_constraintBottom_toTopOf="@+id/item_name_input"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        app:layout_constraintTop_toBottomOf="@+id/new_item_header_container"
         tools:visibility="visible" />
 
-
-    <EditText
-        android:id="@+id/item_name_input"
+    <RadioGroup
+        android:id="@+id/item_type_select"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
-        android:layout_marginEnd="30dp"
-        android:ems="10"
-        android:hint="Name"
-        android:inputType="textPersonName"
-        app:layout_constraintBottom_toTopOf="@id/item_price_input"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        android:paddingStart="30dp"
+        android:paddingEnd="30dp"
+        app:layout_constraintBottom_toTopOf="@id/price_header_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/details_header_text" />
+        app:layout_constraintTop_toBottomOf="@+id/kind_header_text">
 
-    <EditText
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <RadioButton
+            android:id="@+id/radioButton1"
+            style="@style/RadioWithTextOnTop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Groceries" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <RadioButton
+            android:id="@+id/radioButton2"
+            style="@style/RadioWithTextOnTop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Personal" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <RadioButton
+            android:id="@+id/radioButton3"
+            style="@style/RadioWithTextOnTop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fun" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <RadioButton
+            android:id="@+id/radioButton4"
+            style="@style/RadioWithTextOnTop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Other" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/price_header_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:paddingStart="30dp"
+        android:paddingEnd="30dp"
+        android:text="Price"
+        android:textAppearance="@style/mediumHeader"
+        android:textColor="@color/standardDarkTextColor"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/item_type_select"
+        tools:visibility="visible" />
+
+    <io.sulek.currencyfield.CurrencyField
         android:id="@+id/item_price_input"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
         android:layout_marginStart="30dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="30dp"
-        android:ems="10"
-        android:hint="Tag Price"
-        android:inputType="number"
+        android:hint="$0.00"
+        app:attrCurrencyCode="USD"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/item_name_input" />
+        app:layout_constraintTop_toBottomOf="@+id/price_header_text" />
 
     <TextView
         android:id="@+id/item_image_header_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="15dp"
+        android:layout_marginTop="16dp"
         android:paddingStart="30dp"
-        android:layout_marginBottom="8dp"
+        android:paddingEnd="30dp"
         android:text="Photo"
-        android:textColor="@color/standardDarkTextColor"
         android:textAppearance="@style/mediumHeader"
+        android:textColor="@color/standardDarkTextColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/item_price_input"
@@ -104,11 +168,31 @@
     <ImageView
         android:id="@+id/item_image"
         android:layout_width="match_parent"
-        android:layout_height="250dp"
-        app:layout_constraintBottom_toTopOf="@+id/include"
+        android:layout_height="200dp"
+        android:layout_marginTop="16dp"
+        android:scaleType="center"
+        android:src="@drawable/ic_fa_image"
+        android:tint="@color/lightGray"
+        android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/item_image_header_text" />
+
+    <TextView
+        android:id="@+id/iamge_placeholder_hint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Use the scanner later in store to add a real photo."
+        android:textAppearance="@style/tinyHint"
+        android:translationY="-90dp"
+        android:textAlignment="center"
+        android:textColor="@color/standardDarkTextColor"
+        android:alpha="0.75"
+        app:layout_constraintBottom_toTopOf="@+id/include"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/item_image"
+        tools:visibility="visible" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/save_item_btn"
@@ -116,8 +200,8 @@
         android:layout_height="wrap_content"
         android:src="@drawable/ic_fa_save"
         app:maxImageSize="16dp"
-        app:backgroundTint="@android:color/white"
-        android:tint="@color/primaryGray"
+        app:backgroundTint="@color/lightGray"
+        android:tint="@android:color/white"
         android:layout_marginEnd="28dp"
         android:layout_marginBottom="28dp"
         android:clickable="true"
@@ -133,6 +217,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
