@@ -1,12 +1,15 @@
 package fyi.meld.presto
 
 import android.Manifest
+import android.animation.ObjectAnimator
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.nfc.Tag
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.AttributeSet
+import android.util.Log
 import android.util.Size
 import android.view.Display
 import android.view.View
@@ -18,6 +21,7 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
@@ -28,7 +32,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 
 
-class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner {
+class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, MotionLayout.TransitionListener {
 
     var mCurrentTrip = StoreTrip()
     var mIsCameraActive = false;
@@ -40,8 +44,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        base_motionlayout.setTransitionListener(this)
         new_item_btn.setOnClickListener(this)
-        swipe_handler_btn.setOnClickListener(this)
 
         if(!hasPermissions())
         {
@@ -54,7 +58,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner {
     override fun onClick(v: View?) {
         when(v?.id) {
             R.id.new_item_btn -> openNewItemActivity()
-            R.id.swipe_handler_btn -> toggleCamera()
         }
     }
 
@@ -162,5 +165,21 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner {
             }
         }
     }
+
+    override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) {
+    }
+
+    override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) {
+
+    }
+
+    override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) {
+    }
+
+    override fun onTransitionCompleted(p0: MotionLayout?, p1: Int) {
+//        toggleCamera()
+        Log.d(Constants.TAG, "MotionLayout transition completed.")
+    }
+
 
 }
