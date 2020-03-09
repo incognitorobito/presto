@@ -18,19 +18,21 @@ import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.google.common.util.concurrent.ListenableFuture
-import fyi.meld.presto.model.Constants
-import fyi.meld.presto.model.StoreTrip
+import fyi.meld.presto.models.CartItem
+import fyi.meld.presto.utils.Constants
+import fyi.meld.presto.models.StoreTrip
+import fyi.meld.presto.viewmodels.PrestoViewModel
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_new_item.*
+import kotlinx.android.synthetic.main.critical_info.*
 
 
 class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, MotionLayout.TransitionListener {
 
-    var mCurrentTrip = StoreTrip()
-    var mIsCameraRunning = false;
-    var mInitialLayoutState : Int = -1;
-    var mLastAnticipatedLayoutState : Int = -1;
-
+    lateinit var prestoVM : PrestoViewModel
     lateinit var mCameraProviderFuture : ListenableFuture<ProcessCameraProvider>
     lateinit var mPreview : Preview
     lateinit var mCameraSelector : CameraSelector
@@ -47,8 +49,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
             requestPermission()
         }
 
+        configureViewModel()
+
         mCameraProviderFuture = ProcessCameraProvider.getInstance(this);
-        mInitialLayoutState = base_container.currentState
     }
 
     override fun onClick(v: View?) {
@@ -59,11 +62,28 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
 
     override fun onBackPressed() {
 
-        if(mIsCameraRunning)
+        if(prestoVM.isCameraRunning)
         {
             base_container.transitionToStart()
         }
 
+    }
+
+    private fun configureViewModel()
+    {
+        prestoVM = ViewModelProviders.of(this).get(PrestoViewModel::class.java)
+        prestoVM.initialLayoutState = base_container.currentState
+
+        configureDataObservers()
+    }
+
+    private fun configureDataObservers()
+    {
+        prestoVM.storeTrip.observe(this, Observer {
+            cart_size_text.text = it.items.size.toString()
+            cart_total_text.text = "$" + String.format("%.2f", it.getTotalAfterTax())
+            tax_rate_text.text = String.format("%.2f", it.localTaxRate) + "%"
+        })
     }
 
     private fun configureCamera() {
@@ -112,7 +132,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
                     )
                 }, ContextCompat.getMainExecutor(this))
 
-                mIsCameraRunning = true
+                prestoVM.isCameraRunning = true
             }
             .start()
     }
@@ -130,7 +150,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
                     cameraProvider.unbindAll()
                 }, ContextCompat.getMainExecutor(this))
 
-                mIsCameraRunning = false
+                prestoVM.isCameraRunning = false
             }
             .start()
     }
@@ -147,7 +167,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
 
 
     private fun requestPermission(){
-        ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.CAMERA),Constants.PERMISSIONS_REQUEST_CODE)
+        ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.CAMERA),
+            Constants.PERMISSIONS_REQUEST_CODE)
     }
 
     override fun onRequestPermissionsResult(
@@ -173,11 +194,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
 
     override fun onTransitionCompleted(motionLayout: MotionLayout?, currentState: Int) {
 
-        if(currentState != mInitialLayoutState && !mIsCameraRunning)
+        if(currentState != prestoVM.initialLayoutState && !prestoVM.isCameraRunning)
         {
             startCamera()
         }
-        else if(currentState == mInitialLayoutState && mIsCameraRunning)
+        else if(currentState == prestoVM.initialLayoutState && prestoVM.isCameraRunning)
         {
             stopCamera()
         }

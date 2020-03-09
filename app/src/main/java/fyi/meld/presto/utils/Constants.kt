@@ -1,4 +1,4 @@
-package fyi.meld.presto.model
+package fyi.meld.presto.utils
 
 object Constants
 {
