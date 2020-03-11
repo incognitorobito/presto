@@ -182,7 +182,7 @@
         android:layout_height="wrap_content"
         android:text="Use the scanner later in store to add a real photo."
         android:textAppearance="@style/tinyHint"
-        android:translationY="-90dp"
+        android:translationY="-75dp"
         android:textAlignment="center"
         android:textColor="@color/standardDarkTextColor"
         android:alpha="0.75"

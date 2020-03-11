@@ -22,3 +22,11 @@ class PrestoViewModel : ViewModel() {
         storeTrip.value = mCurrentTrip
     }
 }
+
+enum class ItemType
+{
+    Groceries,
+    Personal,
+    Fun,
+    Other
+}
