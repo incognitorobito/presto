@@ -10,4 +10,10 @@ class StoreTrip ()
     {
         return (runningTotal * (localTaxRate / 100f)) + runningTotal
     }
+
+    fun addToCart(item : CartItem)
+    {
+        items.add(item)
+        runningTotal += item.basePrice
+    }
 }

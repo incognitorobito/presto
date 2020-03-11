@@ -18,9 +18,7 @@ class PrestoViewModel : ViewModel() {
 
     fun addItemToCart(item : CartItem)
     {
-        mCurrentTrip.items.add(item)
-        mCurrentTrip.runningTotal += item.basePrice
-
+        mCurrentTrip.addToCart(item)
         storeTrip.value = mCurrentTrip
     }
 }

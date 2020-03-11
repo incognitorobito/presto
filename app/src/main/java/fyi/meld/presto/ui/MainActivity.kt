@@ -1,11 +1,10 @@
-package fyi.meld.presto
+package fyi.meld.presto.ui
 
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.View.*
 import android.widget.Toast
@@ -20,13 +19,13 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.androidisland.vita.VitaOwner
+import com.androidisland.vita.vita
 import com.google.common.util.concurrent.ListenableFuture
-import fyi.meld.presto.models.CartItem
+import fyi.meld.presto.R
 import fyi.meld.presto.utils.Constants
-import fyi.meld.presto.models.StoreTrip
 import fyi.meld.presto.viewmodels.PrestoViewModel
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_new_item.*
 import kotlinx.android.synthetic.main.critical_info.*
 
 
@@ -71,7 +70,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
 
     private fun configureViewModel()
     {
-        prestoVM = ViewModelProviders.of(this).get(PrestoViewModel::class.java)
+        prestoVM = vita.with(VitaOwner.Multiple(this)).getViewModel<PrestoViewModel>()
         prestoVM.initialLayoutState = base_container.currentState
 
         configureDataObservers()

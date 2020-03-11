@@ -1,13 +1,15 @@
-package fyi.meld.presto
+package fyi.meld.presto.ui
 
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.androidisland.vita.VitaOwner
+import com.androidisland.vita.vita
+import fyi.meld.presto.R
 import fyi.meld.presto.models.CartItem
 import fyi.meld.presto.viewmodels.PrestoViewModel
-import kotlinx.android.synthetic.main.activity_main.*
 
 import kotlinx.android.synthetic.main.activity_new_item.*
 import kotlinx.android.synthetic.main.critical_info.*
@@ -21,15 +23,29 @@ class NewItemActivity : AppCompatActivity() {
         setContentView(R.layout.activity_new_item)
 
         save_item_btn.setOnClickListener { view ->
-            prestoVM.addItemToCart(CartItem("Bob", 7.35f))
+            trySaveItem()
         }
 
         configureViewModel()
     }
 
+    private fun trySaveItem()
+    {
+        var priceEntered = item_price_input.getValue()
+
+        if(priceEntered.isNaN())
+        {
+            Toast.makeText(this, "Please enter a valid price.", Toast.LENGTH_SHORT).show()
+        }
+        else
+        {
+            prestoVM.addItemToCart(CartItem("Bob", item_price_input.getValue().toFloat()))
+        }
+    }
+
     private fun configureViewModel()
     {
-        prestoVM = ViewModelProviders.of(this).get(PrestoViewModel::class.java)
+        prestoVM = vita.with(VitaOwner.Multiple(this)).getViewModel<PrestoViewModel>()
         configureDataObservers()
     }
 
