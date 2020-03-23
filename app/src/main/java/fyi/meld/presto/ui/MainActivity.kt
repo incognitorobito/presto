@@ -1,13 +1,16 @@
 package fyi.meld.presto.ui
 
+import SpacesItemDecoration
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.view.View.*
+import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -18,7 +21,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.androidisland.vita.VitaOwner
 import com.androidisland.vita.vita
 import com.google.common.util.concurrent.ListenableFuture
@@ -27,11 +30,13 @@ import fyi.meld.presto.utils.Constants
 import fyi.meld.presto.viewmodels.PrestoViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.critical_info.*
+import java.lang.ref.WeakReference
 
 
 class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, MotionLayout.TransitionListener {
 
     lateinit var prestoVM : PrestoViewModel
+    lateinit var mCartItemAdapter: CartItemAdapter
     lateinit var mCameraProviderFuture : ListenableFuture<ProcessCameraProvider>
     lateinit var mPreview : Preview
     lateinit var mCameraSelector : CameraSelector
@@ -50,6 +55,19 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
 
         configureViewModel()
 
+        cart_items_view.setLayoutManager(
+            StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+        )
+
+        val decoration = SpacesItemDecoration(16)
+        mCartItemAdapter = CartItemAdapter(
+            this,
+            WeakReference(prestoVM.storeTrip.value!!)
+        )
+
+        cart_items_view.adapter = mCartItemAdapter
+        cart_items_view.addItemDecoration(decoration)
+
         mCameraProviderFuture = ProcessCameraProvider.getInstance(this);
     }
 
@@ -65,7 +83,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
         {
             base_container.transitionToStart()
         }
-
     }
 
     private fun configureViewModel()
@@ -157,7 +174,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
     private fun openNewItemActivity()
     {
         val newItemIntent = Intent(this, NewItemActivity::class.java)
-        startActivity(newItemIntent)
+        startActivityForResult(newItemIntent, Constants.NEW_ITEM_REQUEST_CODE)
     }
 
     private fun hasPermissions(): Boolean{
@@ -181,6 +198,16 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+
+        if(requestCode == Constants.NEW_ITEM_REQUEST_CODE && resultCode == Activity.RESULT_OK)
+        {
+            mCartItemAdapter.notifyDataSetChanged()
+        }
+
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
     override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) {
     }
 
@@ -202,6 +229,4 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
             stopCamera()
         }
     }
-
-
 }

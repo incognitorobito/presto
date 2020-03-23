@@ -1,8 +1,8 @@
 package fyi.meld.presto.models
 
-import fyi.meld.presto.viewmodels.ItemType
+import fyi.meld.presto.utils.ItemType
 
-class CartItem constructor(var type : ItemType, var basePrice : Float){
+class CartItem constructor(var name : String, var type : ItemType, var basePrice : Float){
     var photoUri = ""
 
     fun getPriceAfterTax(localTaxRate : Float) : Float

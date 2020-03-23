@@ -4,10 +4,10 @@
     <Transition
         motion:constraintSetStart="@id/cartShowing"
         motion:constraintSetEnd="@+id/cartHidden"
-        motion:duration="750">
+        motion:duration="2000">
         <OnSwipe motion:touchAnchorId="@+id/cart_container"
             motion:touchAnchorSide="bottom"
-            motion:dragDirection="dragUp"/>
+            motion:dragDirection="dragRight"/>
     </Transition>
 
     <ConstraintSet android:id="@+id/cartShowing">
@@ -17,10 +17,10 @@
         <Constraint
             android:id="@id/cart_container">
             <Layout
-                motion:layout_constraintBottom_toTopOf="parent"
-                motion:layout_constraintStart_toStartOf="parent"
-                motion:layout_constraintEnd_toEndOf="parent"/>
-            <Transform android:translationY="-250dp"/>
+                motion:layout_constraintBottom_toTopOf="@+id/critical_info_container"
+                motion:layout_constraintStart_toEndOf="parent"
+                motion:layout_constraintTop_toTopOf="parent"/>
+            <Transform android:translationX="300dp"/>
         </Constraint>
     </ConstraintSet>
 </MotionScene>

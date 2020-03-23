@@ -24,7 +24,7 @@
             android:layout_marginBottom="2dp"
             android:layout_weight="1"
             android:text="New Item"
-            android:textColor="@color/standardDarkTextColor"
+            
             android:textAlignment="center"
             android:textAppearance="@style/massiveHeader" />
 
@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="6:17 PM Store Trip"
-            android:textColor="@color/standardDarkTextColor"
+            
             android:textAlignment="center" />
     </LinearLayout>
 
@@ -42,14 +42,15 @@
         android:id="@+id/kind_header_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:paddingStart="30dp"
         android:paddingEnd="30dp"
         android:text="Category"
         android:textAppearance="@style/mediumHeader"
-        android:textColor="@color/standardDarkTextColor"
+        
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/new_item_header_container"
+        app:layout_constraintTop_toBottomOf="@+id/item_price_input_layout"
         tools:visibility="visible" />
 
     <RadioGroup
@@ -60,7 +61,6 @@
         android:orientation="horizontal"
         android:paddingStart="30dp"
         android:paddingEnd="30dp"
-        app:layout_constraintBottom_toTopOf="@id/price_header_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/kind_header_text">
@@ -120,33 +120,47 @@
 
     </RadioGroup>
 
-    <TextView
-        android:id="@+id/price_header_text"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/item_name_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Name"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:paddingStart="30dp"
+        android:paddingEnd="30dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/new_item_header_container">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/item_name_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/item_price_input_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:hint="Price"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:paddingStart="30dp"
         android:paddingEnd="30dp"
-        android:text="Price"
-        android:textAppearance="@style/mediumHeader"
-        android:textColor="@color/standardDarkTextColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/item_type_select"
-        tools:visibility="visible" />
+        app:layout_constraintTop_toBottomOf="@+id/item_name_input_layout">
 
-    <io.sulek.currencyfield.CurrencyField
-        android:id="@+id/item_price_input"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="30dp"
-        android:hint="$0.00"
-        app:attrCurrencyCode="USD"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/price_header_text" />
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/item_price_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
         android:id="@+id/item_image_header_text"
@@ -157,10 +171,10 @@
         android:paddingEnd="30dp"
         android:text="Photo"
         android:textAppearance="@style/mediumHeader"
-        android:textColor="@color/standardDarkTextColor"
+        
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/item_price_input"
+        app:layout_constraintTop_toBottomOf="@+id/item_type_select"
         tools:visibility="visible" />
 
     <ImageView
@@ -170,21 +184,21 @@
         android:layout_marginTop="16dp"
         android:scaleType="center"
         android:src="@drawable/ic_fa_image"
-        android:tint="@color/lightGray"
+        android:tint="@color/colorAccent"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/item_image_header_text" />
 
     <TextView
-        android:id="@+id/iamge_placeholder_hint"
+        android:id="@+id/image_placeholder_hint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Use the scanner later in store to add a real photo."
         android:textAppearance="@style/tinyHint"
         android:translationY="-75dp"
         android:textAlignment="center"
-        android:textColor="@color/standardDarkTextColor"
+        
         android:alpha="0.75"
         app:layout_constraintBottom_toTopOf="@+id/include"
         app:layout_constraintEnd_toEndOf="parent"
@@ -198,8 +212,6 @@
         android:layout_height="wrap_content"
         android:src="@drawable/ic_fa_save"
         app:maxImageSize="16dp"
-        app:backgroundTint="@color/lightGray"
-        android:tint="@android:color/white"
         android:layout_marginEnd="28dp"
         android:layout_marginBottom="28dp"
         android:clickable="true"
