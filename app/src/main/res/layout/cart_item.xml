@@ -1,86 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="150dp"
     android:layout_height="250dp"
-    android:background="@drawable/cart_item_bg">
+    android:gravity="center"
+    app:cardBackgroundColor="@color/secondaryGray"
+    app:cardCornerRadius="8dp">
 
-    <TextView
-        android:id="@+id/cart_item_name_text"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:paddingTop="8dp"
-        android:textAlignment="center"
-        android:textAppearance="@style/smallHeader"
-        android:textColor="@color/standardDarkTextColor"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:text="Pistachios" />
-
-    <ImageView
-        android:id="@+id/cart_item_image"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:scaleX="0.75"
-        android:scaleY="0.75"
-        android:scaleType="center"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cart_item_name_text"
-        android:tint="@color/secondaryGray"
-        app:srcCompat="@drawable/ic_fa_bread_slice" />
-
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:padding="8dp"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/cart_item_price_text"
+            android:id="@+id/cart_item_name_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:paddingTop="8dp"
+            android:text="Pistachios"
+            android:textColor="@android:color/white"
             android:textAlignment="center"
             android:textAppearance="@style/smallHeader"
-            android:textColor="@color/standardDarkTextColor"
-            android:text="$3.99" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <ImageView
+            android:id="@+id/cart_item_image"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:scaleX="0.75"
+            android:scaleY="0.75"
+            android:scaleType="center"
+            app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cart_item_name_text"
+            android:tint="@android:color/white"
+            app:srcCompat="@drawable/ic_fa_bread_slice" />
 
         <LinearLayout
+            android:id="@+id/linearLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_height="60dp"
+            android:padding="8dp"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
 
             <TextView
-                android:id="@+id/cart_item_type_text"
-                android:layout_width="wrap_content"
+                android:id="@+id/cart_item_price_text"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:textAlignment="center"
-                android:textAppearance="@style/tinyHint"
-                android:textColor="@color/standardDarkTextColor"
-                android:text="Groceries" />
+                android:text="$3.99"
+                android:textColor="@android:color/white"
+                android:textAppearance="@style/smallHeader" />
 
-            <TextView
-                android:id="@+id/cart_item_added_text"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textAlignment="center"
-                android:textAppearance="@style/tinyHint"
-                android:textColor="@color/standardDarkTextColor"
-                android:text="3 min ago" />
+                android:orientation="horizontal">
 
+                <TextView
+                    android:id="@+id/cart_item_type_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAlignment="center"
+                    android:text="Groceries"
+                    android:textColor="@android:color/white"
+                    android:textAppearance="@style/tinyHint"/>
+
+                <TextView
+                    android:id="@+id/cart_item_added_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAlignment="center"
+                    android:text="3 min ago"
+                    android:textColor="@android:color/white"
+                    android:textAppearance="@style/tinyHint" />
+
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>

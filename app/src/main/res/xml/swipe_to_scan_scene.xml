@@ -4,9 +4,9 @@
     <Transition
         motion:constraintSetStart="@id/cartShowing"
         motion:constraintSetEnd="@+id/cartHidden"
-        motion:duration="2000">
+        motion:duration="1500">
         <OnSwipe motion:touchAnchorId="@+id/cart_container"
-            motion:touchAnchorSide="bottom"
+            motion:touchAnchorSide="top"
             motion:dragDirection="dragRight"/>
     </Transition>
 

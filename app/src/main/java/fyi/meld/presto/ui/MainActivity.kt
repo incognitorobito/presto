@@ -7,8 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
-import android.view.View.INVISIBLE
-import android.view.View.VISIBLE
+import android.view.View.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.AspectRatio
@@ -30,6 +29,7 @@ import fyi.meld.presto.utils.Constants
 import fyi.meld.presto.viewmodels.PrestoViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.critical_info.*
+import kotlinx.android.synthetic.main.hint_bar.*
 import java.lang.ref.WeakReference
 
 
@@ -135,7 +135,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
             setDuration(Constants.CAMERA_PREVIEW_FADE_DURATION).
             withStartAction {
                 view_finder.visibility = VISIBLE
-
+                hint_text.text = "Hover over an item and its price"
                 configureCamera()
 
                 mCameraProviderFuture.addListener(Runnable {

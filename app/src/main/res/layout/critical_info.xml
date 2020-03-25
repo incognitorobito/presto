@@ -11,7 +11,6 @@
     app:layout_constraintHorizontal_bias="0.0"
     app:layout_constraintStart_toStartOf="parent">
 
-
         <LinearLayout
             android:id="@+id/tax_rate_container"
             android:layout_width="wrap_content"
@@ -30,6 +29,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="8.26%"
+                android:textColor="@android:color/white"
                 android:textAppearance="@style/smallHeader" />
 
             <TextView
@@ -38,6 +38,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="tax rate"
+                android:textColor="@android:color/white"
                 android:textAlignment="center" />
 
         </LinearLayout>
@@ -60,6 +61,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="$27.44"
+                android:textColor="@android:color/white"
                 android:textAppearance="@style/priceHeader" />
 
             <TextView
@@ -67,7 +69,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="total" />
+                android:text="total"
+                android:textColor="@android:color/white" />
         </LinearLayout>
 
         <LinearLayout
@@ -88,6 +91,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="0"
+                android:textColor="@android:color/white"
                 android:textAppearance="@style/smallHeader" />
 
             <TextView
@@ -95,7 +99,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="items" />
+                android:text="items"
+                android:textColor="@android:color/white" />
         </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

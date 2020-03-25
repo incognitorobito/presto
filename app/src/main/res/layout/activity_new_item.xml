@@ -25,29 +25,25 @@
             android:layout_weight="1"
             android:text="New Item"
             
-            android:textAlignment="center"
-            android:textAppearance="@style/massiveHeader" />
+            android:textAppearance="@style/largeHeader" />
 
         <TextView
             android:id="@+id/view_extra_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="6:17 PM Store Trip"
-            
-            android:textAlignment="center" />
+            android:text="6:17 PM Store Trip"/>
     </LinearLayout>
 
     <TextView
         android:id="@+id/kind_header_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="15dp"
         android:paddingStart="30dp"
         android:paddingEnd="30dp"
         android:text="Category"
-        android:textAppearance="@style/mediumHeader"
-        
+
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/item_price_input_layout"
@@ -57,7 +53,7 @@
         android:id="@+id/item_type_select"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="15dp"
         android:orientation="horizontal"
         android:paddingStart="30dp"
         android:paddingEnd="30dp"
@@ -144,7 +140,7 @@
         android:id="@+id/item_price_input_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="15dp"
         android:hint="Price"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:paddingStart="30dp"
@@ -166,12 +162,10 @@
         android:id="@+id/item_image_header_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="15dp"
         android:paddingStart="30dp"
         android:paddingEnd="30dp"
         android:text="Photo"
-        android:textAppearance="@style/mediumHeader"
-        
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/item_type_select"
@@ -181,10 +175,10 @@
         android:id="@+id/item_image"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="15dp"
         android:scaleType="center"
         android:src="@drawable/ic_fa_image"
-        android:tint="@color/colorAccent"
+        android:tint="@color/secondaryGray"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
