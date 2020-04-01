@@ -5,7 +5,9 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.View.*
 import android.widget.Toast
@@ -18,6 +20,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.drawToBitmap
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -26,10 +29,10 @@ import com.androidisland.vita.vita
 import com.google.common.util.concurrent.ListenableFuture
 import fyi.meld.presto.R
 import fyi.meld.presto.utils.Constants
+import fyi.meld.presto.utils.PriceEngine
 import fyi.meld.presto.viewmodels.PrestoViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.critical_info.*
-import kotlinx.android.synthetic.main.hint_bar.*
 import java.lang.ref.WeakReference
 
 
@@ -40,6 +43,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
     lateinit var mCameraProviderFuture : ListenableFuture<ProcessCameraProvider>
     lateinit var mPreview : Preview
     lateinit var mCameraSelector : CameraSelector
+    lateinit var mImageAnalysisUseCase : ImageAnalysis
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,18 +59,12 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
 
         configureViewModel()
 
-        cart_items_view.setLayoutManager(
-            StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
-        )
+        setupCartItemsView()
 
-        val decoration = SpacesItemDecoration(16)
-        mCartItemAdapter = CartItemAdapter(
-            this,
-            WeakReference(prestoVM.storeTrip.value!!)
-        )
-
-        cart_items_view.adapter = mCartItemAdapter
-        cart_items_view.addItemDecoration(decoration)
+        prestoVM.priceEngine
+            .initialize()
+            .addOnSuccessListener { }
+            .addOnFailureListener { e -> Log.e(Constants.TAG, "Error in setting up the classifier.", e) }
 
         mCameraProviderFuture = ProcessCameraProvider.getInstance(this);
     }
@@ -85,10 +83,27 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
         }
     }
 
+    private fun setupCartItemsView()
+    {
+        cart_items_view.setLayoutManager(
+            StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+        )
+
+        val decoration = SpacesItemDecoration(16)
+        mCartItemAdapter = CartItemAdapter(
+            this,
+            WeakReference(prestoVM.storeTrip.value!!)
+        )
+
+        cart_items_view.adapter = mCartItemAdapter
+        cart_items_view.addItemDecoration(decoration)
+    }
+
     private fun configureViewModel()
     {
         prestoVM = vita.with(VitaOwner.Multiple(this)).getViewModel<PrestoViewModel>()
         prestoVM.initialLayoutState = base_container.currentState
+        prestoVM.priceEngine = PriceEngine(WeakReference(this))
 
         configureDataObservers()
     }
@@ -114,14 +129,26 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
         // Every time the viewfinder is updated, recompute layout
         mPreview.setSurfaceProvider(view_finder.previewSurfaceProvider)
 
-        val imageAnalysis = ImageAnalysis.Builder()
+        mImageAnalysisUseCase = ImageAnalysis.Builder()
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
             .setTargetAspectRatio(AspectRatio.RATIO_4_3)
             .build()
 
-        imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this),
+        mImageAnalysisUseCase.setAnalyzer(ContextCompat.getMainExecutor(this),
             ImageAnalysis.Analyzer {imageProxy -> //DO image manipulation here
-            })
+
+                val imageBmp = view_finder.drawToBitmap()
+
+                imageBmp.let {
+//                    prestoVM.priceEngine.classifyAsync(it)
+//                    .addOnSuccessListener { predictedLabel-> hint_text.text = predictedLabel }
+//                    .addOnFailureListener { exception ->  Log.e(Constants.TAG, exception.toString())}
+
+                }
+                imageProxy.close()
+
+            }
+        )
 
         mCameraSelector = CameraSelector.Builder()
             .requireLensFacing(CameraSelector.LENS_FACING_BACK)
@@ -135,7 +162,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
             setDuration(Constants.CAMERA_PREVIEW_FADE_DURATION).
             withStartAction {
                 view_finder.visibility = VISIBLE
-                hint_text.text = "Hover over an item and its price"
                 configureCamera()
 
                 mCameraProviderFuture.addListener(Runnable {
@@ -144,7 +170,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
                     cameraProvider.bindToLifecycle(
                         this,
                         mCameraSelector,
-                        mPreview
+                        mPreview,
+                        mImageAnalysisUseCase
                     )
                 }, ContextCompat.getMainExecutor(this))
 
