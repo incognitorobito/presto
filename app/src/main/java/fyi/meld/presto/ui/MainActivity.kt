@@ -6,16 +6,16 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.YuvImage
+import android.media.Image
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.view.View.*
+import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.core.AspectRatio
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.Preview
+import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.core.app.ActivityCompat
@@ -33,7 +33,9 @@ import fyi.meld.presto.utils.PriceEngine
 import fyi.meld.presto.viewmodels.PrestoViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.critical_info.*
+import kotlinx.android.synthetic.main.hint_bar.*
 import java.lang.ref.WeakReference
+import java.nio.ByteBuffer
 
 
 class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, MotionLayout.TransitionListener {
@@ -61,10 +63,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
 
         setupCartItemsView()
 
-        prestoVM.priceEngine
-            .initialize()
-            .addOnSuccessListener { }
-            .addOnFailureListener { e -> Log.e(Constants.TAG, "Error in setting up the classifier.", e) }
+        prestoVM.priceEngine.initialize()
 
         mCameraProviderFuture = ProcessCameraProvider.getInstance(this);
     }
@@ -120,13 +119,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
     private fun configureCamera() {
 
         val viewFinderDisplay =  view_finder.display
-        // Build the viewfinder use case
+        val sensorOrientation = windowManager.defaultDisplay.rotation
+
         mPreview = Preview.Builder().apply {
             setTargetRotation(viewFinderDisplay.rotation)
             setTargetAspectRatio(AspectRatio.RATIO_4_3)
         }.build()
 
-        // Every time the viewfinder is updated, recompute layout
         mPreview.setSurfaceProvider(view_finder.previewSurfaceProvider)
 
         mImageAnalysisUseCase = ImageAnalysis.Builder()
@@ -135,18 +134,31 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
             .build()
 
         mImageAnalysisUseCase.setAnalyzer(ContextCompat.getMainExecutor(this),
-            ImageAnalysis.Analyzer {imageProxy -> //DO image manipulation here
+            ImageAnalysis.Analyzer {imageProxy ->
 
-                val imageBmp = view_finder.drawToBitmap()
+                prestoVM.priceEngine.classifyAsync(imageProxy, windowManager.defaultDisplay.rotation)
+                    .addOnSuccessListener {
+                        Log.d(Constants.TAG, it.toString())
+                        var numPrices = 0;
 
-                imageBmp.let {
-//                    prestoVM.priceEngine.classifyAsync(it)
-//                    .addOnSuccessListener { predictedLabel-> hint_text.text = predictedLabel }
-//                    .addOnFailureListener { exception ->  Log.e(Constants.TAG, exception.toString())}
+                        for(box in it)
+                        {
+                            if(box.classIdentifier == "price")
+                            {
+                                numPrices++
+                            }
+                        }
 
-                }
-                imageProxy.close()
-
+                        if(numPrices > 0)
+                        {
+                            hint_text.text = "Found " + numPrices + " price(s)"
+                        }
+                        else
+                        {
+                            hint_text.text = "Hover over an item and its price"
+                        }
+                    }
+                    .addOnFailureListener { e -> Log.e(Constants.TAG, "Price Engine encountered an error.", e) }
             }
         )
 
