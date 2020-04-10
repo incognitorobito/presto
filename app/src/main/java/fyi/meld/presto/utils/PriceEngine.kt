@@ -43,7 +43,7 @@ class PriceEngine(private val context : WeakReference<Context>) {
         isInitialized = true
     }
 
-    fun previewToBitmap(imageProxy : ImageProxy, deviceRotation: Int): Bitmap {
+    private fun previewToBitmap(imageProxy : ImageProxy, deviceRotation: Int): Bitmap {
         val yBuffer = imageProxy.planes[0].buffer // Y
         val uBuffer = imageProxy.planes[1].buffer // U
         val vBuffer = imageProxy.planes[2].buffer // V
@@ -82,7 +82,7 @@ class PriceEngine(private val context : WeakReference<Context>) {
         return Bitmap.createBitmap(convertedBitmap, 0, 0, convertedBitmap.width, convertedBitmap.height, rotationMatrix, true)
     }
 
-    fun classify(sourceImage: ImageProxy, deviceRotation : Int) {
+    private fun classify(sourceImage: ImageProxy, deviceRotation : Int) {
 
         check(isInitialized) { "Price Engine has not yet been initialized." }
 
@@ -95,7 +95,7 @@ class PriceEngine(private val context : WeakReference<Context>) {
         sourceImage.close()
     }
 
-    fun getBoundingBoxes() : ArrayList<BoundingBox>
+    private fun getBoundingBoxes() : ArrayList<BoundingBox>
     {
         var results = ArrayList<BoundingBox>()
         val labels: Array<String> = detector.Identifiers.getStringVector()
