@@ -6,7 +6,6 @@
     app:layoutDescription="@xml/swipe_to_scan_scene"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/secondaryGray"
     tools:context=".ui.MainActivity">
 
     <LinearLayout
@@ -33,6 +32,7 @@
                 android:text="@string/hint_empty_cart"
                 android:textAlignment="center"
                 android:translationY="60dp"
+                android:textColor="@color/primaryDark"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -65,14 +65,21 @@
 
     </LinearLayout>
 
-    <androidx.camera.view.PreviewView
-        android:id="@+id/view_finder"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="match_parent"
+        android:id="@+id/scanner_frame"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.camera.view.PreviewView
+            android:id="@+id/view_finder"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </FrameLayout>
 
     <include
         android:id="@+id/hint_bar"

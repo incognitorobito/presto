@@ -5,11 +5,11 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.YuvImage
+import android.graphics.*
 import android.media.Image
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
@@ -46,6 +46,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
     lateinit var mPreview : Preview
     lateinit var mCameraSelector : CameraSelector
     lateinit var mImageAnalysisUseCase : ImageAnalysis
+    lateinit var mBoundingBoxView: BoundingBoxView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,6 +99,22 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
         cart_items_view.addItemDecoration(decoration)
     }
 
+    private fun configureScannerViews()
+    {
+        scanner_frame.visibility = VISIBLE
+        mBoundingBoxView = BoundingBoxView(this)
+        scanner_frame.addView(mBoundingBoxView)
+    }
+
+    private fun cleanupScannerViews()
+    {
+        scanner_frame.visibility = INVISIBLE
+        scanner_frame.removeView(mBoundingBoxView)
+        var clear = Canvas()
+        clear.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
+        mBoundingBoxView.draw(clear)
+    }
+
     private fun configureViewModel()
     {
         prestoVM = vita.with(VitaOwner.Multiple(this)).getViewModel<PrestoViewModel>()
@@ -139,24 +156,26 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
                 prestoVM.priceEngine.classifyAsync(imageProxy, windowManager.defaultDisplay.rotation)
                     .addOnSuccessListener {
                         Log.d(Constants.TAG, it.toString())
-                        var numPrices = 0;
-
-                        for(box in it)
-                        {
-                            if(box.classIdentifier == "price")
-                            {
-                                numPrices++
-                            }
-                        }
-
-                        if(numPrices > 0)
-                        {
-                            hint_text.text = "Found " + numPrices + " price(s)"
-                        }
-                        else
-                        {
-                            hint_text.text = "Hover over an item and its price"
-                        }
+//                        var numPrices = 0;
+//
+//                        for(box in it)
+//                        {
+//                            if(box.classIdentifier == "price")
+//                            {
+//                                numPrices++
+//                            }
+//                        }
+//
+//                        if(numPrices > 0)
+//                        {
+//                            hint_text.text = "Found " + numPrices + " price(s)"
+//                        }
+//                        else
+//                        {
+//                            hint_text.text = "Hover over an item and its price"
+//                        }
+//
+                        mBoundingBoxView.setNewBoxes(it)
                     }
                     .addOnFailureListener { e -> Log.e(Constants.TAG, "Price Engine encountered an error.", e) }
             }
@@ -169,11 +188,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
 
     private fun startCamera()
     {
-        view_finder.animate().
+        scanner_frame.animate().
             alpha(1.0f).
             setDuration(Constants.CAMERA_PREVIEW_FADE_DURATION).
             withStartAction {
-                view_finder.visibility = VISIBLE
+                configureScannerViews()
                 configureCamera()
 
                 mCameraProviderFuture.addListener(Runnable {
@@ -194,11 +213,12 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
 
     private fun stopCamera()
     {
-        view_finder.animate().
+        scanner_frame.animate().
             alpha(0.0f).
             setDuration(Constants.CAMERA_PREVIEW_FADE_DURATION / 5).
             withEndAction {
-                view_finder.visibility = INVISIBLE
+                cleanupScannerViews()
+                scanner_frame.visibility = INVISIBLE
 
                 mCameraProviderFuture.addListener(Runnable {
                     val cameraProvider = mCameraProviderFuture.get()

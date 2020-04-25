@@ -3,8 +3,7 @@ package fyi.meld.presto.utils
 import ai.customvision.CustomVisionManager
 import ai.customvision.tflite.ObjectDetector
 import ai.customvision.visionskills.CVSObjectDetector
-import android.R.attr.orientation
-import android.R.attr.rotation
+import android.R.attr.*
 import android.content.Context
 import android.graphics.*
 import android.media.Image
@@ -54,7 +53,7 @@ class PriceEngine(private val context : WeakReference<Context>) {
 
         val nv21 = ByteArray(ySize + uSize + vSize)
 
-        //U and V are swapped
+        // U and V are swapped
         yBuffer.get(nv21, 0, ySize)
         vBuffer.get(nv21, ySize, vSize)
         uBuffer.get(nv21, ySize + vSize, uSize)
