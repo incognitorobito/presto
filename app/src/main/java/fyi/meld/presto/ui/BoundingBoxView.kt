@@ -47,6 +47,7 @@ class BoundingBoxView(
                 location.right *= width.toFloat()
                 location.bottom *= height.toFloat()
 
+                //Slightly enlarge the boxes because the neural net isn't perfect.
                 location.left -= location.left * 0.35f
                 location.right *= 1.25f
 
