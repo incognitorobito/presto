@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Presto</string>
-    <string name="hint_empty_cart">Your cart is empty.\nAdd an item or swipe right to scan one. </string>
+    <string name="hint_empty_cart">Your cart is empty.\nAdd an item or swipe right on the total to scan one. </string>
     <string name="title_activity_new_item">NewItem</string>
 </resources>

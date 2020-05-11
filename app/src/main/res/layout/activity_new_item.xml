@@ -32,7 +32,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="6:17 PM Store Trip"/>
+            android:text="10:00AM Store Trip"/>
     </LinearLayout>
 
     <TextView
@@ -178,7 +178,7 @@
         android:layout_marginTop="15dp"
         android:scaleType="center"
         android:src="@drawable/ic_fa_image"
-        android:tint="@color/secondaryGray"
+        android:tint="@color/accent"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -188,7 +188,7 @@
         android:id="@+id/image_placeholder_hint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Use the scanner later in store to add a real photo."
+        android:text="Use the scanner to add a real photo."
         android:textAppearance="@style/tinyHint"
         android:translationY="-75dp"
         android:textAlignment="center"
@@ -205,6 +205,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_fa_save"
+        app:tint="@android:color/white"
         app:maxImageSize="16dp"
         android:layout_marginEnd="28dp"
         android:layout_marginBottom="28dp"

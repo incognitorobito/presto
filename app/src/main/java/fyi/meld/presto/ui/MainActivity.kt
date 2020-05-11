@@ -23,6 +23,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.drawToBitmap
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.androidisland.vita.VitaOwner
 import com.androidisland.vita.vita
@@ -85,9 +86,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
 
     private fun setupCartItemsView()
     {
-        cart_items_view.setLayoutManager(
-            StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
-        )
+        cart_items_view.layoutManager =
+            LinearLayoutManager(this)
 
         val decoration = SpacesItemDecoration(16)
         mCartItemAdapter = CartItemAdapter(
@@ -136,7 +136,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
     private fun configureCamera() {
 
         val viewFinderDisplay =  view_finder.display
-        val sensorOrientation = windowManager.defaultDisplay.rotation
+//        val sensorOrientation = windowManager.defaultDisplay.rotation
 
         mPreview = Preview.Builder().apply {
             setTargetRotation(viewFinderDisplay.rotation)
@@ -262,6 +262,15 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
         if(requestCode == Constants.NEW_ITEM_REQUEST_CODE && resultCode == Activity.RESULT_OK)
         {
             mCartItemAdapter.notifyDataSetChanged()
+
+            if(prestoVM.storeTrip.value!!.items.isNotEmpty() && empty_cart_text.visibility == VISIBLE)
+            {
+                empty_cart_text.visibility = INVISIBLE
+            }
+            else if(prestoVM.storeTrip.value!!.items.isEmpty())
+            {
+                empty_cart_text.visibility = VISIBLE
+            }
         }
 
         super.onActivityResult(requestCode, resultCode, data)

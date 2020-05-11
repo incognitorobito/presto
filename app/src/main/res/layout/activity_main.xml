@@ -6,6 +6,7 @@
     app:layoutDescription="@xml/swipe_to_scan_scene"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/primaryDark"
     tools:context=".ui.MainActivity">
 
     <LinearLayout
@@ -59,7 +60,8 @@
                 android:focusable="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:srcCompat="@drawable/ic_add_gray" />
+                app:srcCompat="@drawable/ic_add_gray"
+                app:tint="@android:color/white" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -8,6 +8,8 @@ import android.graphics.RectF
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
+import androidx.core.content.ContextCompat
+import fyi.meld.presto.R
 import fyi.meld.presto.utils.BoundingBox
 import fyi.meld.presto.utils.Constants
 
@@ -17,16 +19,21 @@ class BoundingBoxView(
 ) :
     View(context) {
     private var newBoxes: List<BoundingBox>? = null
-    private var drawnBoxes: List<BoundingBox>? = null
+    private var drawnSuperBoxes = ArrayList<BoundingBox>()
     private val fgPaint: Paint
-    private val colors = intArrayOf(
-        Color.CYAN,
-        Color.MAGENTA,
-        Color.YELLOW,
-        Color.BLUE,
-        Color.RED,
-        Color.GREEN
-    )
+
+    init {
+
+        val textSizePx = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            TEXT_SIZE_DIP,
+            resources.displayMetrics
+        )
+
+        fgPaint = Paint()
+        fgPaint.textSize = textSizePx
+        fgPaint.strokeWidth = BOX_STROKE_WITDTH
+    }
 
     fun setNewBoxes(newBoxes: List<BoundingBox>) {
         synchronized(this) { this.newBoxes = newBoxes }
@@ -38,7 +45,6 @@ class BoundingBoxView(
         {
             for (boundingBox in newBoxes) {
                 val label = boundingBox.classIdentifier
-                val classColor = colors[boundingBox.classIndex % colors.size]
 
                 // Get bounding box coords
                 var location: RectF = boundingBox.location!!
@@ -47,34 +53,47 @@ class BoundingBoxView(
                 location.right *= width.toFloat()
                 location.bottom *= height.toFloat()
 
-                //Slightly enlarge the boxes because the neural net isn't perfect.
-                location.left -= location.left * 0.35f
-                location.right *= 1.25f
+//                //Slightly enlarge the boxes because the neural net isn't perfect.
+//                location.left -= location.left * 0.35f
+//                location.right *= 1.25f
 
-                // Draw box
-                fgPaint.color = classColor
-                fgPaint.style = Paint.Style.STROKE
-                canvas.drawRect(location, fgPaint)
+                if(label == "price")
+                {
+                    //Create a superbox to rule them all.
+                    location.left -= location.left * 0.65f
+                    location.top -= location.top * 0.1f
 
-                // Draw label
-                val labelBounds = RectF()
-                val fm = fgPaint.fontMetrics
-                labelBounds.left = location.left
-                labelBounds.top =
-                    location.top - (-fm.ascent + fm.descent + LABEL_VERTICAL_PADDING * 2)
-                labelBounds.right =
-                    location.left + (fgPaint.measureText(label) + LABEL_HORIZONTAL_PADDING * 2)
-                labelBounds.bottom = location.top
-                fgPaint.style = Paint.Style.FILL_AND_STROKE
-                canvas.drawRect(labelBounds, fgPaint)
-                fgPaint.color = Color.WHITE
-                fgPaint.style = Paint.Style.FILL
-                canvas.drawText(
-                    label!!,
-                    labelBounds.left + LABEL_HORIZONTAL_PADDING,
-                    labelBounds.bottom - (fm.descent + LABEL_VERTICAL_PADDING),
-                    fgPaint
-                )
+                    location.right *= 1.5f
+                    location.bottom *= 1.20f
+
+                    // Draw box
+                    fgPaint.color = ContextCompat.getColor(context, R.color.accent)
+                    fgPaint.style = Paint.Style.STROKE
+                    canvas.drawRect(location, fgPaint)
+
+                    drawnSuperBoxes.add(boundingBox);
+
+                    // Draw label
+                    val labelBounds = RectF()
+                    val fm = fgPaint.fontMetrics
+                    labelBounds.left = location.left
+                    labelBounds.top =
+                        location.top - (-fm.ascent + fm.descent + LABEL_VERTICAL_PADDING * 2)
+                    labelBounds.right =
+                        location.left + (fgPaint.measureText(label) + LABEL_HORIZONTAL_PADDING * 2)
+                    labelBounds.bottom = location.top
+                    fgPaint.style = Paint.Style.FILL_AND_STROKE
+                    canvas.drawRect(labelBounds, fgPaint)
+                    fgPaint.color = Color.WHITE
+                    fgPaint.style = Paint.Style.FILL
+                    canvas.drawText(
+                        label!!,
+                        labelBounds.left + LABEL_HORIZONTAL_PADDING,
+                        labelBounds.bottom - (fm.descent + LABEL_VERTICAL_PADDING),
+                        fgPaint
+                    )
+
+                }
             }
         }
     }
@@ -87,16 +106,16 @@ class BoundingBoxView(
             correctedBoxes = this.newBoxes
         }
 
-        if(drawnBoxes != null && newBoxes != null && drawnBoxes!!.isNotEmpty() && newBoxes!!.isNotEmpty())
+        if(newBoxes != null && drawnSuperBoxes!!.isNotEmpty() && newBoxes!!.isNotEmpty())
         {
-            for(drawnBox in drawnBoxes!!)
+            for(drawnBox in drawnSuperBoxes!!)
             {
                 for(newBox in newBoxes!!)
                 {
-                    if( drawnBox.location?.left!! <= newBox.location?.left!! &&
-                        drawnBox.location?.right!! >= newBox.location?.left!! &&
-                        drawnBox.location?.top!! >= newBox.location?.bottom!! &&
-                        drawnBox.location?.bottom!! <= newBox.location?.top!!)
+                    if( newBox.location?.left!! <= drawnBox.location?.left!! &&
+                        newBox.location?.right!! >= drawnBox.location?.left!! &&
+                        newBox.location?.top!! >= drawnBox.location?.bottom!! &&
+                        newBox.location?.bottom!! <= drawnBox.location?.top!!)
                     {
                         Log.d(Constants.TAG, "Attempting to draw an overlapping box.")
                     }
@@ -105,7 +124,6 @@ class BoundingBoxView(
         }
 
         drawNewBoxes(canvas, newBoxes)
-        this.drawnBoxes = correctedBoxes
 
     }
 
@@ -114,16 +132,5 @@ class BoundingBoxView(
         private const val BOX_STROKE_WITDTH = 8f
         private const val LABEL_HORIZONTAL_PADDING = 16f
         private const val LABEL_VERTICAL_PADDING = 4f
-    }
-
-    init {
-        val textSizePx = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            TEXT_SIZE_DIP,
-            resources.displayMetrics
-        )
-        fgPaint = Paint()
-        fgPaint.textSize = textSizePx
-        fgPaint.strokeWidth = BOX_STROKE_WITDTH
     }
 }

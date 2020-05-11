@@ -23,7 +23,6 @@ class CartItemAdapter(val baseContext : Context, val trip : WeakReference<StoreT
 
     override fun onBindViewHolder(holder: CartItemViewHolder, position: Int) {
         val cartItem = trip.get()?.items!![position]
-        holder.itemName.text = cartItem.name
         holder.itemPrice.text = cartItem.basePrice.toString()
         holder.itemType.text = cartItem.type.toString()
         holder.itemImage.setImageResource(ItemTypeToDrawable[cartItem.type]!!)
