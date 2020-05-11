@@ -17,6 +17,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -136,14 +137,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
     private fun configureCamera() {
 
         val viewFinderDisplay =  view_finder.display
-//        val sensorOrientation = windowManager.defaultDisplay.rotation
 
         mPreview = Preview.Builder().apply {
             setTargetRotation(viewFinderDisplay.rotation)
             setTargetAspectRatio(AspectRatio.RATIO_4_3)
         }.build()
 
-        mPreview.setSurfaceProvider(view_finder.previewSurfaceProvider)
+        view_finder.preferredImplementationMode = PreviewView.ImplementationMode.SURFACE_VIEW;
 
         mImageAnalysisUseCase = ImageAnalysis.Builder()
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
@@ -198,12 +198,15 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
                 mCameraProviderFuture.addListener(Runnable {
                     val cameraProvider = mCameraProviderFuture.get()
 
-                    cameraProvider.bindToLifecycle(
+                    val camera = cameraProvider.bindToLifecycle(
                         this,
                         mCameraSelector,
                         mPreview,
                         mImageAnalysisUseCase
                     )
+
+                    mPreview.setSurfaceProvider(view_finder.createSurfaceProvider(camera.cameraInfo))
+
                 }, ContextCompat.getMainExecutor(this))
 
                 prestoVM.isCameraRunning = true
