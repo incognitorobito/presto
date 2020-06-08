@@ -1,4 +1,4 @@
-package fyi.meld.presto.utils
+package fyi.meld.presto.models
 
 import android.graphics.RectF
 
@@ -16,6 +16,14 @@ data class BoundingBox (val classIndex: Int, val classIdentifier: String?, priva
             resultString += location.toString() + " "
         }
         return resultString.trim { it <= ' ' }
+    }
+
+    fun isWithin(otherBox: BoundingBox): Boolean {
+
+        return( otherBox.location?.left!! <= this.location?.left!! &&
+                otherBox.location?.right!! >= this.location?.right!! &&
+                otherBox.location?.bottom!! >= this.location?.bottom!! &&
+                otherBox.location?.top!! <= this.location?.top!! )
     }
 
 }

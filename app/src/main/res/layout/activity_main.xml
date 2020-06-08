@@ -81,6 +81,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
+        <include
+            android:id="@+id/price_tag_diag"
+            android:visibility="gone"
+            layout="@layout/price_tag_dialog"></include>
+
     </FrameLayout>
 
     <include

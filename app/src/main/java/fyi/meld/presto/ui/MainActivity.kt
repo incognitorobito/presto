@@ -5,31 +5,34 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.*
-import android.media.Image
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.PorterDuff
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
+import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.core.*
+import androidx.camera.core.AspectRatio
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.drawToBitmap
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.androidisland.vita.VitaOwner
 import com.androidisland.vita.vita
 import com.google.common.util.concurrent.ListenableFuture
 import fyi.meld.presto.R
+import fyi.meld.presto.models.BoundingBox
 import fyi.meld.presto.utils.Constants
 import fyi.meld.presto.utils.PriceEngine
 import fyi.meld.presto.viewmodels.PrestoViewModel
@@ -37,7 +40,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.critical_info.*
 import kotlinx.android.synthetic.main.hint_bar.*
 import java.lang.ref.WeakReference
-import java.nio.ByteBuffer
 
 
 class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, MotionLayout.TransitionListener {
@@ -104,7 +106,25 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
     {
         scanner_frame.visibility = VISIBLE
         mBoundingBoxView = BoundingBoxView(this)
+        mBoundingBoxView.setBoxDrawnHandler {
+            handleBoxDrawn(it)
+        }
         scanner_frame.addView(mBoundingBoxView)
+    }
+
+    private fun handleBoxDrawn(areaPriceBox: BoundingBox)
+    {
+        val dpFactor: Float = base_container.resources.displayMetrics.density
+        val width = (300 * dpFactor).toInt()
+        val height = (100 * dpFactor).toInt()
+
+        val layoutParams = FrameLayout.LayoutParams(width, height)
+        layoutParams.leftMargin = areaPriceBox?.location?.left!!.toInt()
+        layoutParams.topMargin = areaPriceBox?.location?.top!!.toInt() - price_tag_diag.height
+        price_tag_diag.layoutParams = layoutParams
+        scanner_frame.postInvalidate()
+
+        price_tag_diag.visibility = VISIBLE
     }
 
     private fun cleanupScannerViews()
@@ -156,26 +176,12 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
                 prestoVM.priceEngine.classifyAsync(imageProxy, windowManager.defaultDisplay.rotation)
                     .addOnSuccessListener {
                         Log.d(Constants.TAG, it.toString())
-//                        var numPrices = 0;
-//
-//                        for(box in it)
-//                        {
-//                            if(box.classIdentifier == "price")
-//                            {
-//                                numPrices++
-//                            }
-//                        }
-//
-//                        if(numPrices > 0)
-//                        {
-//                            hint_text.text = "Found " + numPrices + " price(s)"
-//                        }
-//                        else
-//                        {
-//                            hint_text.text = "Hover over an item and its price"
-//                        }
-//
-                        mBoundingBoxView.setNewBoxes(it)
+                        if(it.size > 0)
+                        {
+                            hint_text.text = "Tap a price tag for more info"
+                            mCameraProviderFuture.get().unbindAll()
+                            mBoundingBoxView.setNewBoxes(it)
+                        }
                     }
                     .addOnFailureListener { e -> Log.e(Constants.TAG, "Price Engine encountered an error.", e) }
             }

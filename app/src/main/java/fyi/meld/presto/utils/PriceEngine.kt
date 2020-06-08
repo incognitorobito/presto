@@ -3,18 +3,16 @@ package fyi.meld.presto.utils
 import ai.customvision.CustomVisionManager
 import ai.customvision.tflite.ObjectDetector
 import ai.customvision.visionskills.CVSObjectDetector
-import android.R.attr.*
 import android.content.Context
 import android.graphics.*
-import android.media.Image
 import android.util.Log
 import android.view.Surface
 import androidx.camera.core.ImageProxy
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks.call
+import fyi.meld.presto.models.BoundingBox
 import java.io.ByteArrayOutputStream
 import java.lang.ref.WeakReference
-import java.util.*
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -109,7 +107,14 @@ class PriceEngine(private val context : WeakReference<Context>) {
                 val confidence = confidences[i]
                 val location = boundingBoxes[i]
                 val classIndex = indexes[i]
-                results.add(BoundingBox(classIndex, label, confidence, location))
+                results.add(
+                    BoundingBox(
+                        classIndex,
+                        label,
+                        confidence,
+                        location
+                    )
+                )
             }
         }
 
@@ -119,7 +124,7 @@ class PriceEngine(private val context : WeakReference<Context>) {
     fun classifyAsync(imageProxy: ImageProxy, orientation : Int): Task<ArrayList<BoundingBox>> {
         return call(executorService, Callable<ArrayList<BoundingBox>> {
             classify(imageProxy, orientation)
-            Log.i(Constants.TAG, String.format("Detector ran in: %.0f", detector.TimeInMilliseconds.getFloat()));
+            Log.d(Constants.TAG, String.format("Detector ran in: %.0f", detector.TimeInMilliseconds.getFloat()));
             return@Callable getBoundingBoxes()
         })
     }
