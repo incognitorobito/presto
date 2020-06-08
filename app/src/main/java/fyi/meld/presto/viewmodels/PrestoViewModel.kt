@@ -8,19 +8,39 @@ import fyi.meld.presto.utils.PriceEngine
 
 class PrestoViewModel : ViewModel() {
     var storeTrip : MutableLiveData<StoreTrip> = MutableLiveData()
-    lateinit var priceEngine : PriceEngine
     var isCameraRunning = false;
     var initialLayoutState : Int = -1;
+    var switchUIHandler : SwitchUIHandler? = null
+
+    lateinit var priceEngine : PriceEngine
 
     private var mCurrentTrip = StoreTrip()
+
 
     init {
         storeTrip.value = mCurrentTrip
     }
 
-    fun addItemToCart(item : CartItem)
+    fun addToCart(item : CartItem)
     {
         mCurrentTrip.addToCart(item)
         storeTrip.value = mCurrentTrip
     }
+
+    fun switchToNewItemUI()
+    {
+        switchUIHandler?.onNewItemUIRequested()
+    }
+
+    fun switchToCartUI()
+    {
+        switchUIHandler?.onCartUIRequested()
+    }
+
+    interface SwitchUIHandler
+    {
+        fun onNewItemUIRequested()
+        fun onCartUIRequested()
+    }
+
 }

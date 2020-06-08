@@ -1,63 +1,45 @@
 package fyi.meld.presto.ui
 
-import SpacesItemDecoration
 import android.Manifest
-import android.app.Activity
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.PorterDuff
 import android.os.Bundle
-import android.util.Log
-import android.view.View
-import android.view.View.INVISIBLE
-import android.view.View.VISIBLE
-import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.core.AspectRatio
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.Preview
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.view.PreviewView
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.androidisland.vita.VitaOwner
 import com.androidisland.vita.vita
-import com.google.common.util.concurrent.ListenableFuture
 import fyi.meld.presto.R
-import fyi.meld.presto.models.BoundingBox
 import fyi.meld.presto.utils.Constants
 import fyi.meld.presto.utils.PriceEngine
 import fyi.meld.presto.viewmodels.PrestoViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.critical_info.*
-import kotlinx.android.synthetic.main.hint_bar.*
 import java.lang.ref.WeakReference
 
 
-class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, MotionLayout.TransitionListener {
+class MainActivity : AppCompatActivity(), LifecycleOwner, MotionLayout.TransitionListener, PrestoViewModel.SwitchUIHandler {
 
     lateinit var prestoVM : PrestoViewModel
-    lateinit var mCartItemAdapter: CartItemAdapter
-    lateinit var mCameraProviderFuture : ListenableFuture<ProcessCameraProvider>
-    lateinit var mPreview : Preview
-    lateinit var mCameraSelector : CameraSelector
-    lateinit var mImageAnalysisUseCase : ImageAnalysis
-    lateinit var mBoundingBoxView: BoundingBoxView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        base_container.setTransitionListener(this)
-        new_item_btn.setOnClickListener(this)
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+
+        if (currentFragment == null) {
+            val cartUI = CartFragment.newInstance()
+            supportFragmentManager
+                .beginTransaction()
+                .add(R.id.fragment_container, cartUI)
+                .commit()
+        }
+
+//        base_container.setTransitionListener(this)
 
         if(!hasPermissions())
         {
@@ -65,82 +47,46 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
         }
 
         configureViewModel()
-
-        setupCartItemsView()
-
-        prestoVM.priceEngine.initialize()
-
-        mCameraProviderFuture = ProcessCameraProvider.getInstance(this);
     }
 
-    override fun onClick(v: View?) {
-        when(v?.id) {
-            R.id.new_item_btn -> openNewItemActivity()
-        }
+    override fun onNewItemUIRequested() {
+        //TODO Combine this and other UI request method into a simpler solution.
+        val newItemUI = NewItemFragment.newInstance()
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragment_container, newItemUI)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    override fun onCartUIRequested() {
+        val cartUI = CartFragment.newInstance()
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragment_container, cartUI)
+            .addToBackStack(null)
+            .commit()
     }
 
     override fun onBackPressed() {
-
-        if(prestoVM.isCameraRunning)
+        if (fragmentManager.backStackEntryCount > 0) {
+            fragmentManager.popBackStack()
+        } else if(prestoVM.isCameraRunning)
         {
-            base_container.transitionToStart()
+//            base_container.transitionToStart()
         }
-    }
-
-    private fun setupCartItemsView()
-    {
-        cart_items_view.layoutManager =
-            LinearLayoutManager(this)
-
-        val decoration = SpacesItemDecoration(16)
-        mCartItemAdapter = CartItemAdapter(
-            this,
-            WeakReference(prestoVM.storeTrip.value!!)
-        )
-
-        cart_items_view.adapter = mCartItemAdapter
-        cart_items_view.addItemDecoration(decoration)
-    }
-
-    private fun configureScannerViews()
-    {
-        scanner_frame.visibility = VISIBLE
-        mBoundingBoxView = BoundingBoxView(this)
-        mBoundingBoxView.setBoxDrawnHandler {
-            handleBoxDrawn(it)
+        else {
+            super.onBackPressed()
         }
-        scanner_frame.addView(mBoundingBoxView)
-    }
-
-    private fun handleBoxDrawn(areaPriceBox: BoundingBox)
-    {
-        val dpFactor: Float = base_container.resources.displayMetrics.density
-        val width = (300 * dpFactor).toInt()
-        val height = (100 * dpFactor).toInt()
-
-        val layoutParams = FrameLayout.LayoutParams(width, height)
-        layoutParams.leftMargin = areaPriceBox?.location?.left!!.toInt()
-        layoutParams.topMargin = areaPriceBox?.location?.top!!.toInt() - price_tag_diag.height
-        price_tag_diag.layoutParams = layoutParams
-        scanner_frame.postInvalidate()
-
-        price_tag_diag.visibility = VISIBLE
-    }
-
-    private fun cleanupScannerViews()
-    {
-        scanner_frame.visibility = INVISIBLE
-        scanner_frame.removeView(mBoundingBoxView)
-        var clear = Canvas()
-        clear.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
-        mBoundingBoxView.draw(clear)
     }
 
     private fun configureViewModel()
     {
         prestoVM = vita.with(VitaOwner.Multiple(this)).getViewModel<PrestoViewModel>()
         prestoVM.initialLayoutState = base_container.currentState
+        prestoVM.switchUIHandler = this
         prestoVM.priceEngine = PriceEngine(WeakReference(this))
+        prestoVM.priceEngine.initialize()
 
         configureDataObservers()
     }
@@ -152,97 +98,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
             cart_total_text.text = "$" + String.format("%.2f", it.getTotalAfterTax())
             tax_rate_text.text = String.format("%.2f", it.localTaxRate) + "%"
         })
-    }
-
-    private fun configureCamera() {
-
-        val viewFinderDisplay =  view_finder.display
-
-        mPreview = Preview.Builder().apply {
-            setTargetRotation(viewFinderDisplay.rotation)
-            setTargetAspectRatio(AspectRatio.RATIO_4_3)
-        }.build()
-
-        view_finder.preferredImplementationMode = PreviewView.ImplementationMode.SURFACE_VIEW;
-
-        mImageAnalysisUseCase = ImageAnalysis.Builder()
-            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-            .build()
-
-        mImageAnalysisUseCase.setAnalyzer(ContextCompat.getMainExecutor(this),
-            ImageAnalysis.Analyzer {imageProxy ->
-
-                prestoVM.priceEngine.classifyAsync(imageProxy, windowManager.defaultDisplay.rotation)
-                    .addOnSuccessListener {
-                        Log.d(Constants.TAG, it.toString())
-                        if(it.size > 0)
-                        {
-                            hint_text.text = "Tap a price tag for more info"
-                            mCameraProviderFuture.get().unbindAll()
-                            mBoundingBoxView.setNewBoxes(it)
-                        }
-                    }
-                    .addOnFailureListener { e -> Log.e(Constants.TAG, "Price Engine encountered an error.", e) }
-            }
-        )
-
-        mCameraSelector = CameraSelector.Builder()
-            .requireLensFacing(CameraSelector.LENS_FACING_BACK)
-            .build()
-    }
-
-    private fun startCamera()
-    {
-        scanner_frame.animate().
-            alpha(1.0f).
-            setDuration(Constants.CAMERA_PREVIEW_FADE_DURATION).
-            withStartAction {
-                configureScannerViews()
-                configureCamera()
-
-                mCameraProviderFuture.addListener(Runnable {
-                    val cameraProvider = mCameraProviderFuture.get()
-
-                    val camera = cameraProvider.bindToLifecycle(
-                        this,
-                        mCameraSelector,
-                        mPreview,
-                        mImageAnalysisUseCase
-                    )
-
-                    mPreview.setSurfaceProvider(view_finder.createSurfaceProvider(camera.cameraInfo))
-
-                }, ContextCompat.getMainExecutor(this))
-
-                prestoVM.isCameraRunning = true
-            }
-            .start()
-    }
-
-    private fun stopCamera()
-    {
-        scanner_frame.animate().
-            alpha(0.0f).
-            setDuration(Constants.CAMERA_PREVIEW_FADE_DURATION / 5).
-            withEndAction {
-                cleanupScannerViews()
-                scanner_frame.visibility = INVISIBLE
-
-                mCameraProviderFuture.addListener(Runnable {
-                    val cameraProvider = mCameraProviderFuture.get()
-                    cameraProvider.unbindAll()
-                }, ContextCompat.getMainExecutor(this))
-
-                prestoVM.isCameraRunning = false
-            }
-            .start()
-    }
-
-    private fun openNewItemActivity()
-    {
-        val newItemIntent = Intent(this, NewItemActivity::class.java)
-        startActivityForResult(newItemIntent, Constants.NEW_ITEM_REQUEST_CODE)
     }
 
     private fun hasPermissions(): Boolean{
@@ -266,25 +121,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-
-        if(requestCode == Constants.NEW_ITEM_REQUEST_CODE && resultCode == Activity.RESULT_OK)
-        {
-            mCartItemAdapter.notifyDataSetChanged()
-
-            if(prestoVM.storeTrip.value!!.items.isNotEmpty() && empty_cart_text.visibility == VISIBLE)
-            {
-                empty_cart_text.visibility = INVISIBLE
-            }
-            else if(prestoVM.storeTrip.value!!.items.isEmpty())
-            {
-                empty_cart_text.visibility = VISIBLE
-            }
-        }
-
-        super.onActivityResult(requestCode, resultCode, data)
-    }
-
     override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) {
     }
 
@@ -297,13 +133,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner, 
 
     override fun onTransitionCompleted(motionLayout: MotionLayout?, currentState: Int) {
 
-        if(currentState != prestoVM.initialLayoutState && !prestoVM.isCameraRunning)
-        {
-            startCamera()
-        }
-        else if(currentState == prestoVM.initialLayoutState && prestoVM.isCameraRunning)
-        {
-            stopCamera()
-        }
+//        if(currentState != prestoVM.initialLayoutState && !prestoVM.isCameraRunning)
+//        {
+//            startCamera()
+//        }
+//        else if(currentState == prestoVM.initialLayoutState && prestoVM.isCameraRunning)
+//        {
+//            stopCamera()
+//        }
     }
 }
