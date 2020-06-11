@@ -9,7 +9,6 @@ import fyi.meld.presto.utils.PriceEngine
 class PrestoViewModel : ViewModel() {
     var storeTrip : MutableLiveData<StoreTrip> = MutableLiveData()
     var isCameraRunning = false;
-    var initialLayoutState : Int = -1;
     var switchUIHandler : SwitchUIHandler? = null
 
     lateinit var priceEngine : PriceEngine

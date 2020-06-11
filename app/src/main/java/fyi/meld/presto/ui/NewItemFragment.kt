@@ -11,6 +11,7 @@ import android.widget.RadioGroup
 import android.widget.Toast
 import com.androidisland.vita.VitaOwner
 import com.androidisland.vita.vita
+import com.google.android.material.transition.MaterialSharedAxis
 import fyi.meld.presto.R
 import fyi.meld.presto.models.CartItem
 import fyi.meld.presto.utils.Constants
@@ -64,7 +65,7 @@ class NewItemFragment : Fragment() {
 
         if(item_price_input.text.isNullOrEmpty() || item_name_input.text.isNullOrEmpty() || checkedID == -1)
         {
-            Toast.makeText(requireActivity(), "Please enter a price, a name, and select a category.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Please enter a price, a name, and select a category.", Toast.LENGTH_SHORT).show()
         }
         else
         {

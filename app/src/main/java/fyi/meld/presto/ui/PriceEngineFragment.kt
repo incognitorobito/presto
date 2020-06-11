@@ -19,6 +19,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.androidisland.vita.VitaOwner
 import com.androidisland.vita.vita
+import com.google.android.material.transition.MaterialSharedAxis
 import com.google.common.util.concurrent.ListenableFuture
 import fyi.meld.presto.R
 import fyi.meld.presto.models.BoundingBox
@@ -46,6 +47,12 @@ class PriceEngineFragment: Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val backward = MaterialSharedAxis(MaterialSharedAxis.Y, true)
+        val forward = MaterialSharedAxis(MaterialSharedAxis.Y, false)
+
+        enterTransition = forward
+        returnTransition = backward
     }
 
     override fun onCreateView(
@@ -59,13 +66,13 @@ class PriceEngineFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        mCameraProviderFuture = ProcessCameraProvider.getInstance(requireActivity());
+        mCameraProviderFuture = ProcessCameraProvider.getInstance(requireContext());
     }
 
     private fun configureScannerViews()
     {
         scanner_frame.visibility = View.VISIBLE
-        mBoundingBoxView = BoundingBoxView(requireActivity())
+        mBoundingBoxView = BoundingBoxView(requireContext())
         mBoundingBoxView.setBoxDrawnHandler {
 //            handleBoxDrawn(it)
         }
@@ -113,7 +120,7 @@ class PriceEngineFragment: Fragment() {
             .build()
 
         mImageAnalysisUseCase.setAnalyzer(
-            ContextCompat.getMainExecutor(requireActivity()),
+            ContextCompat.getMainExecutor(requireContext()),
             ImageAnalysis.Analyzer {imageProxy ->
 
                 prestoVM.priceEngine.classifyAsync(imageProxy, requireActivity().windowManager.defaultDisplay.rotation)
@@ -147,16 +154,16 @@ class PriceEngineFragment: Fragment() {
                 mCameraProviderFuture.addListener(Runnable {
                     val cameraProvider = mCameraProviderFuture.get()
 
-                    val camera = cameraProvider.bindToLifecycle(
+                    cameraProvider.bindToLifecycle(
                         this,
                         mCameraSelector,
                         mPreview,
                         mImageAnalysisUseCase
                     )
 
-                    mPreview.setSurfaceProvider(view_finder.createSurfaceProvider(camera.cameraInfo))
+                    mPreview.setSurfaceProvider(view_finder.createSurfaceProvider())
 
-                }, ContextCompat.getMainExecutor(requireActivity()))
+                }, ContextCompat.getMainExecutor(requireContext()))
 
                 prestoVM.isCameraRunning = true
             }
@@ -175,7 +182,7 @@ class PriceEngineFragment: Fragment() {
                 mCameraProviderFuture.addListener(Runnable {
                     val cameraProvider = mCameraProviderFuture.get()
                     cameraProvider.unbindAll()
-                }, ContextCompat.getMainExecutor(requireActivity()))
+                }, ContextCompat.getMainExecutor(requireContext()))
 
                 prestoVM.isCameraRunning = false
             }

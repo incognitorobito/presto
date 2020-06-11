@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.androidisland.vita.VitaOwner
 import com.androidisland.vita.vita
+import com.google.android.material.transition.MaterialSharedAxis
 
 import fyi.meld.presto.R
 import fyi.meld.presto.viewmodels.PrestoViewModel
@@ -19,6 +20,16 @@ class CartFragment : Fragment(), View.OnClickListener {
 
     lateinit var mCartItemAdapter: CartItemAdapter
     private var prestoVM : PrestoViewModel = vita.with(VitaOwner.Multiple(this)).getViewModel<PrestoViewModel>()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val backward = MaterialSharedAxis(MaterialSharedAxis.Y, false)
+        val forward = MaterialSharedAxis(MaterialSharedAxis.Y, true)
+
+        reenterTransition = backward
+        exitTransition = forward
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

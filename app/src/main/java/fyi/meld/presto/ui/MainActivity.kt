@@ -21,7 +21,7 @@ import kotlinx.android.synthetic.main.critical_info.*
 import java.lang.ref.WeakReference
 
 
-class MainActivity : AppCompatActivity(), LifecycleOwner, MotionLayout.TransitionListener, PrestoViewModel.SwitchUIHandler {
+class MainActivity : AppCompatActivity(), LifecycleOwner, PrestoViewModel.SwitchUIHandler {
 
     lateinit var prestoVM : PrestoViewModel
 
@@ -38,9 +38,7 @@ class MainActivity : AppCompatActivity(), LifecycleOwner, MotionLayout.Transitio
                 .add(R.id.fragment_container, cartUI)
                 .commit()
         }
-
-//        base_container.setTransitionListener(this)
-
+        
         if(!hasPermissions())
         {
             requestPermission()
@@ -83,7 +81,6 @@ class MainActivity : AppCompatActivity(), LifecycleOwner, MotionLayout.Transitio
     private fun configureViewModel()
     {
         prestoVM = vita.with(VitaOwner.Multiple(this)).getViewModel<PrestoViewModel>()
-        prestoVM.initialLayoutState = base_container.currentState
         prestoVM.switchUIHandler = this
         prestoVM.priceEngine = PriceEngine(WeakReference(this))
         prestoVM.priceEngine.initialize()
@@ -121,18 +118,6 @@ class MainActivity : AppCompatActivity(), LifecycleOwner, MotionLayout.Transitio
         }
     }
 
-    override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) {
-    }
-
-    override fun onTransitionStarted(motionLayout: MotionLayout?, startingState: Int, endingState: Int) {
-
-    }
-
-    override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) {
-    }
-
-    override fun onTransitionCompleted(motionLayout: MotionLayout?, currentState: Int) {
-
 //        if(currentState != prestoVM.initialLayoutState && !prestoVM.isCameraRunning)
 //        {
 //            startCamera()
@@ -141,5 +126,5 @@ class MainActivity : AppCompatActivity(), LifecycleOwner, MotionLayout.Transitio
 //        {
 //            stopCamera()
 //        }
-    }
+
 }
