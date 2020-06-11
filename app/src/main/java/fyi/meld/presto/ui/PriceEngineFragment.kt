@@ -5,14 +5,15 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.os.Bundle
 import android.util.Log
+import android.util.Size
 import android.view.LayoutInflater
+import android.view.Surface
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import androidx.camera.core.AspectRatio
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.Preview
+import androidx.camera.core.*
+import androidx.camera.core.impl.ImageAnalysisConfig
+import androidx.camera.core.impl.ImageReaderProxy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
@@ -25,7 +26,6 @@ import fyi.meld.presto.R
 import fyi.meld.presto.models.BoundingBox
 import fyi.meld.presto.utils.Constants
 import fyi.meld.presto.viewmodels.PrestoViewModel
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.hint_bar.*
 import kotlinx.android.synthetic.main.price_engine_fragment.*
 
@@ -90,14 +90,14 @@ class PriceEngineFragment: Fragment() {
         scanner_frame.visibility = View.VISIBLE
         mBoundingBoxView = BoundingBoxView(requireContext())
         mBoundingBoxView.setBoxDrawnHandler {
-//            handleBoxDrawn(it)
+            handleBoxDrawn(it)
         }
         scanner_frame.addView(mBoundingBoxView)
     }
 
     private fun handleBoxDrawn(areaPriceBox: BoundingBox)
     {
-        val dpFactor: Float = base_container.resources.displayMetrics.density
+        val dpFactor: Float = scanner_frame.resources.displayMetrics.density
         val width = (300 * dpFactor).toInt()
         val height = (100 * dpFactor).toInt()
 
@@ -125,14 +125,14 @@ class PriceEngineFragment: Fragment() {
 
         mPreview = Preview.Builder().apply {
             setTargetRotation(viewFinderDisplay.rotation)
-            setTargetAspectRatio(AspectRatio.RATIO_4_3)
+            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
         }.build()
 
         view_finder.preferredImplementationMode = PreviewView.ImplementationMode.SURFACE_VIEW;
 
         mImageAnalysisUseCase = ImageAnalysis.Builder()
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+            .setTargetResolution(Size(480, 640))
             .build()
 
         mImageAnalysisUseCase.setAnalyzer(
@@ -173,8 +173,8 @@ class PriceEngineFragment: Fragment() {
                     cameraProvider.bindToLifecycle(
                         this,
                         mCameraSelector,
-                        mPreview
-//                        mImageAnalysisUseCase
+                        mPreview,
+                        mImageAnalysisUseCase
                     )
 
                     mPreview.setSurfaceProvider(view_finder.createSurfaceProvider())
