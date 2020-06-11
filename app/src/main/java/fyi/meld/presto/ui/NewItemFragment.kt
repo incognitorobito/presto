@@ -29,10 +29,6 @@ class NewItemFragment : Fragment() {
 
     private var prestoVM = vita.with(VitaOwner.Multiple(this)).getViewModel<PrestoViewModel>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

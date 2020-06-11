@@ -10,6 +10,24 @@
     android:background="@drawable/popsicle_background"
     android:orientation="vertical">
 
+    <LinearLayout
+        android:id="@+id/header_bar"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@color/accent"
+        android:padding="8dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/cart_items_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+<!--        <TextView-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Presto"-->
+<!--            android:textColor="@android:color/white"/>-->
+    </LinearLayout>
+
     <TextView
         android:id="@+id/empty_cart_text"
         android:layout_width="wrap_content"
@@ -26,13 +44,12 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/cart_items_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:layout_gravity="center_horizontal"
-        android:paddingTop="48dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/header_bar" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/new_item_btn"

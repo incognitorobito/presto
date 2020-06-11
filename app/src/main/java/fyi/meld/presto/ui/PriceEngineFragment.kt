@@ -69,6 +69,22 @@ class PriceEngineFragment: Fragment() {
         mCameraProviderFuture = ProcessCameraProvider.getInstance(requireContext());
     }
 
+    override fun onResume() {
+        super.onResume()
+        if(!prestoVM.isCameraRunning)
+        {
+            startCamera()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if(prestoVM.isCameraRunning)
+        {
+            stopCamera()
+        }
+    }
+
     private fun configureScannerViews()
     {
         scanner_frame.visibility = View.VISIBLE
@@ -157,8 +173,8 @@ class PriceEngineFragment: Fragment() {
                     cameraProvider.bindToLifecycle(
                         this,
                         mCameraSelector,
-                        mPreview,
-                        mImageAnalysisUseCase
+                        mPreview
+//                        mImageAnalysisUseCase
                     )
 
                     mPreview.setSurfaceProvider(view_finder.createSurfaceProvider())

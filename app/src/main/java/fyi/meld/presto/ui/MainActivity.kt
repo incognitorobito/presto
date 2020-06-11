@@ -3,23 +3,23 @@ package fyi.meld.presto.ui
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import androidx.viewpager2.widget.ViewPager2
 import com.androidisland.vita.VitaOwner
 import com.androidisland.vita.vita
 import fyi.meld.presto.R
 import fyi.meld.presto.utils.Constants
 import fyi.meld.presto.utils.PriceEngine
 import fyi.meld.presto.viewmodels.PrestoViewModel
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.critical_info.*
 import java.lang.ref.WeakReference
-
 
 class MainActivity : AppCompatActivity(), LifecycleOwner, PrestoViewModel.SwitchUIHandler {
 
@@ -32,13 +32,13 @@ class MainActivity : AppCompatActivity(), LifecycleOwner, PrestoViewModel.Switch
         val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
 
         if (currentFragment == null) {
-            val cartUI = CartFragment.newInstance()
+            val viewPagerFrag = ViewPagerFragment.newInstance()
             supportFragmentManager
                 .beginTransaction()
-                .add(R.id.fragment_container, cartUI)
+                .add(R.id.fragment_container, viewPagerFrag)
                 .commit()
         }
-        
+
         if(!hasPermissions())
         {
             requestPermission()
@@ -58,12 +58,23 @@ class MainActivity : AppCompatActivity(), LifecycleOwner, PrestoViewModel.Switch
     }
 
     override fun onCartUIRequested() {
-        val cartUI = CartFragment.newInstance()
-        supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.fragment_container, cartUI)
-            .addToBackStack(null)
-            .commit()
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+
+        if(currentFragment is ViewPagerFragment)
+        {
+            currentFragment.fragmentPager?.currentItem = 0
+        }
+        else
+        {
+            val swipeUI = ViewPagerFragment.newInstance()
+            swipeUI.fragmentPager?.currentItem = 0
+
+            supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container, swipeUI)
+                .addToBackStack(null)
+                .commit()
+        }
     }
 
     override fun onBackPressed() {
@@ -71,7 +82,7 @@ class MainActivity : AppCompatActivity(), LifecycleOwner, PrestoViewModel.Switch
             fragmentManager.popBackStack()
         } else if(prestoVM.isCameraRunning)
         {
-//            base_container.transitionToStart()
+            prestoVM.switchToCartUI()
         }
         else {
             super.onBackPressed()
@@ -117,14 +128,4 @@ class MainActivity : AppCompatActivity(), LifecycleOwner, PrestoViewModel.Switch
             }
         }
     }
-
-//        if(currentState != prestoVM.initialLayoutState && !prestoVM.isCameraRunning)
-//        {
-//            startCamera()
-//        }
-//        else if(currentState == prestoVM.initialLayoutState && prestoVM.isCameraRunning)
-//        {
-//            stopCamera()
-//        }
-
 }

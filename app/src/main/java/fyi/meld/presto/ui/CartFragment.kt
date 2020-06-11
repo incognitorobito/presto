@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.androidisland.vita.VitaOwner
 import com.androidisland.vita.vita
 import com.google.android.material.transition.MaterialSharedAxis
@@ -20,16 +21,6 @@ class CartFragment : Fragment(), View.OnClickListener {
 
     lateinit var mCartItemAdapter: CartItemAdapter
     private var prestoVM : PrestoViewModel = vita.with(VitaOwner.Multiple(this)).getViewModel<PrestoViewModel>()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        val backward = MaterialSharedAxis(MaterialSharedAxis.Y, false)
-        val forward = MaterialSharedAxis(MaterialSharedAxis.Y, true)
-
-        reenterTransition = backward
-        exitTransition = forward
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,8 +43,8 @@ class CartFragment : Fragment(), View.OnClickListener {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
         updateCartUI()
     }
 
@@ -80,6 +71,8 @@ class CartFragment : Fragment(), View.OnClickListener {
             requireActivity(),
             WeakReference(prestoVM.storeTrip.value!!)
         )
+
+        mCartItemAdapter.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
 
         cart_items_view.adapter = mCartItemAdapter
     }

@@ -2,6 +2,7 @@ package fyi.meld.presto.viewmodels
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.viewpager2.widget.ViewPager2
 import fyi.meld.presto.models.CartItem
 import fyi.meld.presto.models.StoreTrip
 import fyi.meld.presto.utils.PriceEngine
