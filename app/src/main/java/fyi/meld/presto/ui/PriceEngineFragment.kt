@@ -84,17 +84,24 @@ class PriceEngineFragment: Fragment(), PriceEngine.DetectionStatusHandler {
 
     private fun showPriceDiag()
     {
-        val dpFactor: Float = scanner_frame.resources.displayMetrics.density
-        val width = (300 * dpFactor).toInt()
-        val height = (100 * dpFactor).toInt()
+        price_tag_diag.animate()
+            .withStartAction {
 
-        val layoutParams = FrameLayout.LayoutParams(width, height)
-        layoutParams.leftMargin = (scanner_frame.width / 2) - (width / 2)
-        layoutParams.topMargin = (scanner_frame.height / 2) - (height / 2)
-        price_tag_diag.layoutParams = layoutParams
-        scanner_frame.postInvalidate()
+                val dpFactor: Float = scanner_frame.resources.displayMetrics.density
+                val width = (250 * dpFactor).toInt()
+                val height = (175 * dpFactor).toInt()
 
-        price_tag_diag.visibility = View.VISIBLE
+                val layoutParams = FrameLayout.LayoutParams(width, height)
+                layoutParams.leftMargin = (scanner_frame.width / 2) - (width / 2)
+                layoutParams.topMargin = (scanner_frame.height / 2) - (height / 2)
+                price_tag_diag.layoutParams = layoutParams
+                scanner_frame.postInvalidate()
+
+                price_tag_diag.visibility = View.VISIBLE
+
+            }
+            .alpha(1.0f)
+            .setDuration(Constants.CAMERA_PREVIEW_FADE_DURATION / 5)
     }
 
     private fun configureCamera() {
@@ -140,10 +147,10 @@ class PriceEngineFragment: Fragment(), PriceEngine.DetectionStatusHandler {
 
     private fun startCamera()
     {
-        scanner_frame.animate().
-            alpha(1.0f).
-            setDuration(Constants.CAMERA_PREVIEW_FADE_DURATION).
-            withStartAction {
+        scanner_frame.animate()
+            .alpha(1.0f)
+            .setDuration(Constants.CAMERA_PREVIEW_FADE_DURATION)
+            .withStartAction {
                 scanner_frame.visibility = View.VISIBLE
 
                 configureCamera()
@@ -163,16 +170,15 @@ class PriceEngineFragment: Fragment(), PriceEngine.DetectionStatusHandler {
                 }, ContextCompat.getMainExecutor(requireContext()))
 
                 prestoVM.isCameraRunning = true
-            }
-            .start()
+            }.start()
     }
 
     private fun stopCamera()
     {
-        scanner_frame.animate().
-            alpha(0.0f).
-            setDuration(Constants.CAMERA_PREVIEW_FADE_DURATION / 5).
-            withEndAction {
+        scanner_frame.animate()
+            .alpha(0.0f)
+            .setDuration(Constants.CAMERA_PREVIEW_FADE_DURATION / 5)
+            .withEndAction {
                 scanner_frame.visibility = View.INVISIBLE
 
                 mCameraProviderFuture.addListener(Runnable {
@@ -181,8 +187,7 @@ class PriceEngineFragment: Fragment(), PriceEngine.DetectionStatusHandler {
                 }, ContextCompat.getMainExecutor(requireContext()))
 
                 prestoVM.isCameraRunning = false
-            }
-            .start()
+            }.start()
     }
 
     companion object {
@@ -194,8 +199,13 @@ class PriceEngineFragment: Fragment(), PriceEngine.DetectionStatusHandler {
         requireActivity().runOnUiThread {
             if(price_tag_diag.visibility == View.VISIBLE)
             {
-                price_tag_diag.visibility = View.INVISIBLE
-                hint_text.text = "Hover over an item and its price"
+                price_tag_diag.animate()
+                    .alpha(0.0f)
+                    .setDuration(Constants.CAMERA_PREVIEW_FADE_DURATION / 5)
+                    .withEndAction {
+                        price_tag_diag.visibility = View.INVISIBLE
+                        hint_text.text = "Hover over an item and its price"
+                    }
             }
         }
     }

@@ -23,6 +23,7 @@
     <include
         android:id="@+id/price_tag_diag"
         android:visibility="gone"
+        android:alpha="0.0"
         layout="@layout/price_tag_dialog" />
 
 </FrameLayout>
