@@ -1,23 +1,20 @@
 package fyi.meld.presto.ui
 
-import android.app.Activity
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import com.androidisland.vita.VitaOwner
 import com.androidisland.vita.vita
-import com.google.android.material.transition.MaterialSharedAxis
 import fyi.meld.presto.R
 import fyi.meld.presto.models.CartItem
 import fyi.meld.presto.utils.Constants
 import fyi.meld.presto.utils.ItemType
 import fyi.meld.presto.viewmodels.PrestoViewModel
-import kotlinx.android.synthetic.main.critical_info.*
 import kotlinx.android.synthetic.main.new_item_fragment.*
 
 /**

@@ -1,17 +1,14 @@
 package fyi.meld.presto.ui
 
-import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.androidisland.vita.VitaOwner
 import com.androidisland.vita.vita
-import com.google.android.material.transition.MaterialSharedAxis
-
 import fyi.meld.presto.R
 import fyi.meld.presto.viewmodels.PrestoViewModel
 import kotlinx.android.synthetic.main.cart_fragment.*

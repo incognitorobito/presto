@@ -11,13 +11,11 @@ import androidx.camera.core.ImageProxy
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks.call
 import fyi.meld.presto.models.BoundingBox
-import fyi.meld.presto.viewmodels.PrestoViewModel
 import java.io.ByteArrayOutputStream
 import java.lang.ref.WeakReference
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import kotlin.collections.ArrayList
 
 private const val MAX_EMPTY_OR_LOW_CONFIDENCE_FRAMES = 2
 private const val MIN_CONFIDENCE_THRESHOLD = 0.50f
