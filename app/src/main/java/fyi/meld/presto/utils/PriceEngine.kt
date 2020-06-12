@@ -17,7 +17,7 @@ import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-private const val MAX_EMPTY_OR_LOW_CONFIDENCE_FRAMES = 2
+private const val MAX_EMPTY_OR_LOW_CONFIDENCE_FRAMES = 1
 private const val MIN_CONFIDENCE_THRESHOLD = 0.50f
 
 class PriceEngine(private val context : WeakReference<Context>) {
@@ -115,6 +115,12 @@ class PriceEngine(private val context : WeakReference<Context>) {
                 {
                     if(confidence >= MIN_CONFIDENCE_THRESHOLD)
                     {
+                        //Enlarge the bounding box so that we can be sure the contents will be picked up by OCR.
+                        location.left -= location.left * 0.65f
+                        location.top -= location.top * 0.1f
+                        location.right *= 1.25f
+                        location.bottom *= 1.20f
+
                         results.add(
                             BoundingBox(
                                 classIndex,
