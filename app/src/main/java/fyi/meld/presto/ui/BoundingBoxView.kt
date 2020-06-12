@@ -36,7 +36,7 @@ class BoundingBoxView(
         postInvalidate()
     }
 
-    public fun setBoxDrawnHandler(handler: (BoundingBox) -> Unit)
+    fun setBoxDrawnHandler(handler: (BoundingBox) -> Unit)
     {
         boxDrawnHandler = handler
     }
@@ -57,7 +57,7 @@ class BoundingBoxView(
         fgPaint.color = Color.WHITE
         fgPaint.style = Paint.Style.FILL
         canvas.drawText(
-            label!!,
+            label,
             labelBounds.left + LABEL_HORIZONTAL_PADDING,
             labelBounds.bottom - (fm.descent + LABEL_VERTICAL_PADDING),
             fgPaint
@@ -76,7 +76,7 @@ class BoundingBoxView(
         {
             for (boundingBox in newBoxes) {
                 val label = boundingBox.classIdentifier
-                var location: RectF = boundingBox.location!!
+                val location: RectF = boundingBox.location!!
                 location.left *= width.toFloat()
                 location.top *= height.toFloat()
                 location.right *= width.toFloat()
@@ -93,9 +93,12 @@ class BoundingBoxView(
                 }
             }
 
-            drawBox(canvas, areaPriceBox!!.location!!)
-            drawLabels(canvas, areaPriceBox!!.location!!, areaPriceBox!!.classIdentifier!!)
-            boxDrawnHandler(areaPriceBox!!)
+            if(areaPriceBox != null)
+            {
+                drawBox(canvas, areaPriceBox!!.location!!)
+                drawLabels(canvas, areaPriceBox!!.location!!, areaPriceBox!!.classIdentifier!!)
+                boxDrawnHandler(areaPriceBox!!)
+            }
         }
     }
 

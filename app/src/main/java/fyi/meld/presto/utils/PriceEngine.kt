@@ -11,6 +11,7 @@ import androidx.camera.core.ImageProxy
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks.call
 import fyi.meld.presto.models.BoundingBox
+import fyi.meld.presto.viewmodels.PrestoViewModel
 import java.io.ByteArrayOutputStream
 import java.lang.ref.WeakReference
 import java.util.concurrent.Callable
@@ -18,14 +19,18 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.collections.ArrayList
 
+private const val MAX_EMPTY_OR_LOW_CONFIDENCE_FRAMES = 2
+private const val MIN_CONFIDENCE_THRESHOLD = 0.50f
 
 class PriceEngine(private val context : WeakReference<Context>) {
+
+    var detectionStatusHandler : DetectionStatusHandler? = null
 
     private lateinit var detector: ObjectDetector
     private var availableLabels = arrayListOf<String>()
     private var isInitialized = false
-
     private val executorService: ExecutorService = Executors.newSingleThreadExecutor()
+    private var priceNotDetectedFrames = 0
 
     fun initialize() {
         CustomVisionManager.setAppContext(context.get())
@@ -107,15 +112,38 @@ class PriceEngine(private val context : WeakReference<Context>) {
                 val confidence = confidences[i]
                 val location = boundingBoxes[i]
                 val classIndex = indexes[i]
-                results.add(
-                    BoundingBox(
-                        classIndex,
-                        label,
-                        confidence,
-                        location
-                    )
-                )
+
+                if(label == "price")
+                {
+                    if(confidence >= MIN_CONFIDENCE_THRESHOLD)
+                    {
+                        results.add(
+                            BoundingBox(
+                                classIndex,
+                                label,
+                                confidence,
+                                location
+                            )
+                        )
+                    }
+                    else
+                    {
+                        priceNotDetectedFrames +1
+                    }
+
+                    break
+                }
             }
+        }
+        else
+        {
+            priceNotDetectedFrames += 1
+        }
+
+        if(priceNotDetectedFrames > MAX_EMPTY_OR_LOW_CONFIDENCE_FRAMES)
+        {
+            detectionStatusHandler?.onPriceNotDetectedAfterSomeTime()
+            priceNotDetectedFrames = 0
         }
 
         return results
@@ -127,5 +155,10 @@ class PriceEngine(private val context : WeakReference<Context>) {
             Log.d(Constants.TAG, String.format("Detector ran in: %.0f", detector.TimeInMilliseconds.getFloat()));
             return@Callable getBoundingBoxes()
         })
+    }
+
+    interface DetectionStatusHandler
+    {
+        fun onPriceNotDetectedAfterSomeTime()
     }
 }

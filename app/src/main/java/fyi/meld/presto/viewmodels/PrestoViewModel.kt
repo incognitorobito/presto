@@ -42,5 +42,4 @@ class PrestoViewModel : ViewModel() {
         fun onNewItemUIRequested()
         fun onCartUIRequested()
     }
-
 }

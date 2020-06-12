@@ -17,6 +17,7 @@ import androidx.camera.core.impl.ImageReaderProxy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.androidisland.vita.VitaOwner
 import com.androidisland.vita.vita
@@ -25,6 +26,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import fyi.meld.presto.R
 import fyi.meld.presto.models.BoundingBox
 import fyi.meld.presto.utils.Constants
+import fyi.meld.presto.utils.PriceEngine
 import fyi.meld.presto.viewmodels.PrestoViewModel
 import kotlinx.android.synthetic.main.hint_bar.*
 import kotlinx.android.synthetic.main.price_engine_fragment.*
@@ -35,7 +37,7 @@ import kotlinx.android.synthetic.main.price_engine_fragment.*
  * create an instance of this fragment.
  */
 
-class PriceEngineFragment: Fragment() {
+class PriceEngineFragment: Fragment(), PriceEngine.DetectionStatusHandler {
 
     lateinit var mCameraProviderFuture : ListenableFuture<ProcessCameraProvider>
     lateinit var mPreview : Preview
@@ -67,6 +69,7 @@ class PriceEngineFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         mCameraProviderFuture = ProcessCameraProvider.getInstance(requireContext());
+        prestoVM.priceEngine.detectionStatusHandler = this
     }
 
     override fun onResume() {
@@ -85,38 +88,19 @@ class PriceEngineFragment: Fragment() {
         }
     }
 
-    private fun configureScannerViews()
-    {
-        scanner_frame.visibility = View.VISIBLE
-        mBoundingBoxView = BoundingBoxView(requireContext())
-        mBoundingBoxView.setBoxDrawnHandler {
-            handleBoxDrawn(it)
-        }
-        scanner_frame.addView(mBoundingBoxView)
-    }
-
-    private fun handleBoxDrawn(areaPriceBox: BoundingBox)
+    private fun showPriceDiag()
     {
         val dpFactor: Float = scanner_frame.resources.displayMetrics.density
         val width = (300 * dpFactor).toInt()
         val height = (100 * dpFactor).toInt()
 
         val layoutParams = FrameLayout.LayoutParams(width, height)
-        layoutParams.leftMargin = areaPriceBox.location?.left!!.toInt()
-        layoutParams.topMargin = areaPriceBox.location?.top!!.toInt() - price_tag_diag.height
+        layoutParams.leftMargin = (scanner_frame.width / 2) - (width / 2)
+        layoutParams.topMargin = (scanner_frame.height / 2) - (height / 2)
         price_tag_diag.layoutParams = layoutParams
         scanner_frame.postInvalidate()
 
         price_tag_diag.visibility = View.VISIBLE
-    }
-
-    private fun cleanupScannerViews()
-    {
-        scanner_frame.visibility = View.INVISIBLE
-        scanner_frame.removeView(mBoundingBoxView)
-        val clear = Canvas()
-        clear.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
-        mBoundingBoxView.draw(clear)
     }
 
     private fun configureCamera() {
@@ -142,11 +126,13 @@ class PriceEngineFragment: Fragment() {
                 prestoVM.priceEngine.classifyAsync(imageProxy, requireActivity().windowManager.defaultDisplay.rotation)
                     .addOnSuccessListener {
                         Log.d(Constants.TAG, it.toString())
-                        if(it.size > 0)
-                        {
-                            hint_text.text = "Tap a price tag for more info"
-                            mCameraProviderFuture.get().unbindAll()
-                            mBoundingBoxView.setNewBoxes(it)
+
+                        requireActivity().runOnUiThread {
+                            if(it.size == 1 && price_tag_diag.visibility != View.VISIBLE)
+                            {
+                                hint_text.text = "Add item to cart?"
+                                showPriceDiag()
+                            }
                         }
                     }
                     .addOnFailureListener { e -> Log.e(Constants.TAG, "Price Engine encountered an error.", e) }
@@ -164,7 +150,8 @@ class PriceEngineFragment: Fragment() {
             alpha(1.0f).
             setDuration(Constants.CAMERA_PREVIEW_FADE_DURATION).
             withStartAction {
-                configureScannerViews()
+                scanner_frame.visibility = View.VISIBLE
+
                 configureCamera()
 
                 mCameraProviderFuture.addListener(Runnable {
@@ -192,7 +179,6 @@ class PriceEngineFragment: Fragment() {
             alpha(0.0f).
             setDuration(Constants.CAMERA_PREVIEW_FADE_DURATION / 5).
             withEndAction {
-                cleanupScannerViews()
                 scanner_frame.visibility = View.INVISIBLE
 
                 mCameraProviderFuture.addListener(Runnable {
@@ -208,5 +194,15 @@ class PriceEngineFragment: Fragment() {
     companion object {
         @JvmStatic
         fun newInstance() = PriceEngineFragment()
+    }
+
+    override fun onPriceNotDetectedAfterSomeTime() {
+        requireActivity().runOnUiThread {
+            if(price_tag_diag.visibility == View.VISIBLE)
+            {
+                price_tag_diag.visibility = View.INVISIBLE
+                hint_text.text = "Hover over an item and its price"
+            }
+        }
     }
 }
