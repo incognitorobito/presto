@@ -43,7 +43,6 @@ class PriceEngineFragment: Fragment(), PriceEngine.DetectionStatusHandler {
     lateinit var mPreview : Preview
     lateinit var mCameraSelector : CameraSelector
     lateinit var mImageAnalysisUseCase : ImageAnalysis
-    lateinit var mBoundingBoxView: BoundingBoxView
 
     private var prestoVM : PrestoViewModel = vita.with(VitaOwner.Multiple(this)).getViewModel<PrestoViewModel>()
 
