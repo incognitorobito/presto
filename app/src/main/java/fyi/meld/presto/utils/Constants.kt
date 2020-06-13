@@ -7,7 +7,7 @@ object Constants
     val TAG = "Presto"
     val PERMISSIONS_REQUEST_CODE = 1001
     val CAMERA_PREVIEW_FADE_DURATION : Long = 1250
-    val NEW_ITEM_REQUEST_CODE = 9009
+    val US_CURRENCY_REGEX = "^[+-]?[0-9]{1,3}(?:,?[0-9]{3})*\\.[0-9]{2}\$"
     val ItemTypeToDrawable = mapOf(
         ItemType.Fun to R.drawable.ic_fa_theater_masks,
         ItemType.Groceries to R.drawable.ic_fa_bread_slice,

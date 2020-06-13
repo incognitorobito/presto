@@ -95,7 +95,7 @@ class PriceEngineFragment: Fragment(), PriceEngine.DetectionStatusHandler, View.
                     hint_text.visibility = View.INVISIBLE
 
                     add_success_image.visibility = View.VISIBLE
-                    price_tag_hint_text.text = "Successfully added item to cart"
+                    price_tag_hint_text.text = getString(R.string.add_item_success)
 
                     Handler().postDelayed({
                         onPriceLost()
@@ -123,13 +123,13 @@ class PriceEngineFragment: Fragment(), PriceEngine.DetectionStatusHandler, View.
 
     private fun showPriceDiag(detectedPrice : String)
     {
-        newItem = CartItem("", ItemType.Other, detectedPrice.drop(1).toFloat())
+        newItem = CartItem("", ItemType.Other, detectedPrice.toFloat())
         newItem?.name = String.format("$%.2f", newItem!!.basePrice)
         val priceAfterTax = String.format("$%.2f", newItem!!.getPriceAfterTax(8.26f))
 
         price_tag_diag.animate()
             .withStartAction {
-                hint_text.text = "Add item to cart?"
+                hint_text.text = getString(R.string.add_item_hint)
 
                 val dpFactor: Float = scanner_frame.resources.displayMetrics.density
                 val width = scanner_frame.width
@@ -254,11 +254,11 @@ class PriceEngineFragment: Fragment(), PriceEngine.DetectionStatusHandler, View.
                     .setDuration(Constants.CAMERA_PREVIEW_FADE_DURATION / 10)
                     .withEndAction {
                         price_tag_diag.visibility = View.INVISIBLE
-                        hint_text.text = "Hover over an item and its price"
+                        hint_text.text = getString(R.string.scanner_open_hint)
 
                         if(add_success_image.visibility == View.VISIBLE)
                         {
-                            price_tag_hint_text.text = "after tax"
+                            price_tag_hint_text.text = getString(R.string.after_tax)
 
                             price_text.visibility = View.VISIBLE
                             add_to_cart_btn.visibility = View.VISIBLE

@@ -2,7 +2,8 @@
     <string name="app_name">Presto</string>
     <string name="hint_empty_cart">Your cart is empty.\nAdd an item or swipe right on the total to scan one. </string>
     <string name="title_activity_new_item">NewItem</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="after_tax">after tax</string>
+    <string name="add_item_success">Successfully added item to cart</string>
+    <string name="add_item_hint">Add item to cart?</string>
+    <string name="scanner_open_hint">Hover over an item and its price</string>
 </resources>

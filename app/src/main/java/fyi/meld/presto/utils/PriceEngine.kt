@@ -156,7 +156,7 @@ class PriceEngine(private val context : WeakReference<Context>) {
                         val elementCornerPoints = element.cornerPoints
                         val elementFrame = element.boundingBox
 
-                        if(elementText.matches(Regex("(USD|\\\$)\\s?(\\d{1,3}(?:[.,]\\d{3})*(?:[.,]\\d{2}))|(\\d{1,3}(?:[.,]\\d{3})*(?:[.,]\\d{2})?)\\s?(USD|\\\$)")))
+                        if(elementText.matches(Regex(Constants.US_CURRENCY_REGEX)))
                         {
                             foundPrice = elementText
                             Log.d(Constants.TAG, elementText)
