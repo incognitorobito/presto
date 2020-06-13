@@ -1,6 +1,7 @@
 package fyi.meld.presto.ui
 
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.util.Log
 import android.util.Size
 import android.view.LayoutInflater
@@ -20,11 +21,15 @@ import com.androidisland.vita.vita
 import com.google.android.material.transition.MaterialSharedAxis
 import com.google.common.util.concurrent.ListenableFuture
 import fyi.meld.presto.R
+import fyi.meld.presto.models.CartItem
 import fyi.meld.presto.utils.Constants
+import fyi.meld.presto.utils.ItemType
 import fyi.meld.presto.utils.PriceEngine
 import fyi.meld.presto.viewmodels.PrestoViewModel
 import kotlinx.android.synthetic.main.hint_bar.*
 import kotlinx.android.synthetic.main.price_engine_fragment.*
+import kotlinx.android.synthetic.main.price_tag_dialog.*
+
 
 /**
  * A simple [Fragment] subclass.
@@ -34,11 +39,12 @@ import kotlinx.android.synthetic.main.price_engine_fragment.*
 
 class PriceEngineFragment: Fragment(), PriceEngine.DetectionStatusHandler {
 
-    lateinit var mCameraProviderFuture : ListenableFuture<ProcessCameraProvider>
-    lateinit var mPreview : Preview
-    lateinit var mCameraSelector : CameraSelector
-    lateinit var mImageAnalysisUseCase : ImageAnalysis
+    private lateinit var mCameraProviderFuture : ListenableFuture<ProcessCameraProvider>
+    private lateinit var mPreview : Preview
+    private lateinit var mCameraSelector : CameraSelector
+    private lateinit var mImageAnalysisUseCase : ImageAnalysis
 
+    private val charPool : List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
     private var prestoVM : PrestoViewModel = vita.with(VitaOwner.Multiple(this)).getViewModel<PrestoViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,8 +88,20 @@ class PriceEngineFragment: Fragment(), PriceEngine.DetectionStatusHandler {
         }
     }
 
-    private fun showPriceDiag()
+    fun getRandomName() : String
     {
+        val randomString = (1..6)
+            .map { i -> kotlin.random.Random.nextInt(0, charPool.size) }
+            .map(charPool::get)
+            .joinToString("");
+
+        return randomString
+    }
+
+    private fun showPriceDiag(price : String)
+    {
+        var newItem = CartItem(getRandomName(), ItemType.Other, price.drop(1).toFloat())
+
         price_tag_diag.animate()
             .withStartAction {
 
@@ -94,10 +112,14 @@ class PriceEngineFragment: Fragment(), PriceEngine.DetectionStatusHandler {
                 val layoutParams = FrameLayout.LayoutParams(width, height)
                 layoutParams.leftMargin = (scanner_frame.width / 2) - (width / 2)
                 layoutParams.topMargin = (scanner_frame.height / 2) - (height / 2)
+
                 price_tag_diag.layoutParams = layoutParams
                 scanner_frame.postInvalidate()
 
+                price_detected_indicator.visibility = View.INVISIBLE
+
                 price_tag_diag.visibility = View.VISIBLE
+                price_text.text = String.format("$%.2f", newItem.getPriceAfterTax(8.26f))
 
             }
             .alpha(1.0f)
@@ -122,17 +144,26 @@ class PriceEngineFragment: Fragment(), PriceEngine.DetectionStatusHandler {
 
         mImageAnalysisUseCase.setAnalyzer(
             ContextCompat.getMainExecutor(requireContext()),
-            ImageAnalysis.Analyzer {imageProxy ->
+            ImageAnalysis.Analyzer { imageProxy ->
 
-                prestoVM.priceEngine.classifyAsync(imageProxy, requireActivity().windowManager.defaultDisplay.rotation)
+                val displayScaleFactor: Int = scanner_frame.resources.displayMetrics.densityDpi
+
+                prestoVM.priceEngine.findPricesAsync(imageProxy, displayScaleFactor)
                     .addOnSuccessListener {
                         Log.d(Constants.TAG, it.toString())
 
                         requireActivity().runOnUiThread {
-                            if(it.size == 1 && price_tag_diag.visibility != View.VISIBLE)
+                            if(price_tag_diag.visibility == View.INVISIBLE)
                             {
-                                hint_text.text = "Add item to cart?"
-                                showPriceDiag()
+                                if(it.isNotBlank())
+                                {
+                                    hint_text.text = "Add item to cart?"
+                                    showPriceDiag(it)
+                                }
+                                else
+                                {
+                                    onPriceLost()
+                                }
                             }
                         }
                     }
@@ -195,7 +226,7 @@ class PriceEngineFragment: Fragment(), PriceEngine.DetectionStatusHandler {
         fun newInstance() = PriceEngineFragment()
     }
 
-    override fun onPriceNotDetectedAfterSomeTime() {
+    override fun onPriceLost() {
         requireActivity().runOnUiThread {
             if(price_tag_diag.visibility == View.VISIBLE)
             {
@@ -207,6 +238,20 @@ class PriceEngineFragment: Fragment(), PriceEngine.DetectionStatusHandler {
                         hint_text.text = "Hover over an item and its price"
                     }
             }
+            else if(price_detected_indicator.visibility == View.VISIBLE)
+            {
+                price_detected_indicator.visibility = View.INVISIBLE
+            }
         }
     }
+
+    override fun onPriceFound() {
+        requireActivity().runOnUiThread {
+            if(price_tag_diag.visibility == View.INVISIBLE && price_detected_indicator.visibility == View.INVISIBLE)
+            {
+                price_detected_indicator.visibility = View.VISIBLE
+            }
+        }
+    }
+
 }

@@ -115,6 +115,12 @@ class MainActivity : AppCompatActivity(), LifecycleOwner, PrestoViewModel.Switch
             Constants.PERMISSIONS_REQUEST_CODE)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+
+        prestoVM.shutdownPriceEngine()
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         if (requestCode == Constants.PERMISSIONS_REQUEST_CODE) {

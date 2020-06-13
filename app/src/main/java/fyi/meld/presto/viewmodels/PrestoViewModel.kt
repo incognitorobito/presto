@@ -21,6 +21,11 @@ class PrestoViewModel : ViewModel() {
         storeTrip.value = mCurrentTrip
     }
 
+    fun shutdownPriceEngine()
+    {
+        priceEngine.shutdown()
+    }
+
     fun addToCart(item : CartItem)
     {
         mCurrentTrip.addToCart(item)

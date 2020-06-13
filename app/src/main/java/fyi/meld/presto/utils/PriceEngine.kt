@@ -6,16 +6,25 @@ import ai.customvision.visionskills.CVSObjectDetector
 import android.content.Context
 import android.graphics.*
 import android.util.Log
-import android.view.Surface
+import android.util.SparseArray
 import androidx.camera.core.ImageProxy
+import androidx.core.graphics.get
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks.call
+import com.google.android.gms.vision.text.TextBlock
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.Text
+import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.TextRecognizer
 import fyi.meld.presto.models.BoundingBox
 import java.io.ByteArrayOutputStream
+import java.lang.IllegalArgumentException
+import java.lang.Math.abs
 import java.lang.ref.WeakReference
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+
 
 private const val MAX_EMPTY_OR_LOW_CONFIDENCE_FRAMES = 1
 private const val MIN_CONFIDENCE_THRESHOLD = 0.50f
@@ -25,6 +34,7 @@ class PriceEngine(private val context : WeakReference<Context>) {
     var detectionStatusHandler : DetectionStatusHandler? = null
 
     private lateinit var detector: ObjectDetector
+    private lateinit var recognizer: TextRecognizer;
     private var availableLabels = arrayListOf<String>()
     private var isInitialized = false
     private val executorService: ExecutorService = Executors.newSingleThreadExecutor()
@@ -40,10 +50,17 @@ class PriceEngine(private val context : WeakReference<Context>) {
         availableLabels = config.SupportedIdentifiers.stringVector.toList() as ArrayList<String>
         detector = ObjectDetector(config)
 
+        recognizer = TextRecognition.getClient()
+
         isInitialized = true
     }
 
-    private fun previewToBitmap(imageProxy : ImageProxy, deviceRotation: Int): Bitmap {
+    fun shutdown() {
+        detector.close()
+        recognizer.close()
+    }
+
+    private fun previewToBitmap(imageProxy : ImageProxy, imageRotation: Int): Bitmap {
         val yBuffer = imageProxy.planes[0].buffer // Y
         val uBuffer = imageProxy.planes[1].buffer // U
         val vBuffer = imageProxy.planes[2].buffer // V
@@ -71,33 +88,89 @@ class PriceEngine(private val context : WeakReference<Context>) {
 
         var rotationMatrix = Matrix()
 
-        when(deviceRotation)
-        {
-            Surface.ROTATION_0 -> rotationMatrix.postRotate(90F)
-            Surface.ROTATION_90 -> rotationMatrix.postRotate(-90F)
-            Surface.ROTATION_180 -> rotationMatrix.postRotate(180F)
-            Surface.ROTATION_270 -> rotationMatrix.postRotate(270F)
-        }
+        rotationMatrix.postRotate(imageRotation.toFloat())
 
         return Bitmap.createBitmap(convertedBitmap, 0, 0, convertedBitmap.width, convertedBitmap.height, rotationMatrix, true)
     }
 
-    private fun classify(sourceImage: ImageProxy, deviceRotation : Int) {
+    private fun findPrice(sourceImage: ImageProxy, displayScaleFactor: Int) : Bitmap? {
 
         check(isInitialized) { "Price Engine has not yet been initialized." }
 
-        var sourceBitmap = previewToBitmap(sourceImage, deviceRotation)
+        var sourceBitmap = previewToBitmap(sourceImage, sourceImage.imageInfo.rotationDegrees)
+        var croppedBitmap : Bitmap? = null
 
         detector.setImage(sourceBitmap)
         detector.run()
 
+        Log.d(Constants.TAG, String.format("Detector ran in: %.0f", detector.TimeInMilliseconds.getFloat()));
+
+        val firstBox = getFirstPriceBoundingBox(sourceBitmap)
+
+        if(firstBox != null)
+        {
+            val location = firstBox.location!!
+
+            val scaledLeft = (location.left * sourceBitmap.getScaledWidth(displayScaleFactor)).toInt()
+            val scaledRight = (location.right * sourceBitmap.getScaledWidth(displayScaleFactor)).toInt()
+            val scaledTop = (location.top * sourceBitmap.getScaledHeight(displayScaleFactor)).toInt()
+            val scaledBottom = (location.bottom * sourceBitmap.getScaledHeight(displayScaleFactor)).toInt()
+
+            try {
+                croppedBitmap = Bitmap.createBitmap(sourceBitmap,
+                    scaledLeft,
+                    scaledTop,
+                    scaledRight - scaledLeft,
+                    scaledBottom - scaledTop
+                )
+            }
+            catch(e: IllegalArgumentException)
+            {
+                Log.e(Constants.TAG, "An error occurred while attempting to find a price tag.", e)
+            }
+        }
+
         sourceBitmap.recycle()
         sourceImage.close()
+
+        return croppedBitmap
     }
 
-    private fun getBoundingBoxes() : ArrayList<BoundingBox>
+    private fun getPriceText(result: Text?) : String
     {
-        var results = ArrayList<BoundingBox>()
+        var foundPrice: String = ""
+
+        if(result != null)
+        {
+            val resultText = result.text
+            for (block in result.textBlocks) {
+                val blockText = block.text
+                val blockCornerPoints = block.cornerPoints
+                val blockFrame = block.boundingBox
+                for (line in block.lines) {
+                    val lineText = line.text
+                    val lineCornerPoints = line.cornerPoints
+                    val lineFrame = line.boundingBox
+                    for (element in line.elements) {
+                        val elementText = element.text
+                        val elementCornerPoints = element.cornerPoints
+                        val elementFrame = element.boundingBox
+
+                        if(elementText.matches(Regex("(USD|\\\$)\\s?(\\d{1,3}(?:[.,]\\d{3})*(?:[.,]\\d{2}))|(\\d{1,3}(?:[.,]\\d{3})*(?:[.,]\\d{2})?)\\s?(USD|\\\$)")))
+                        {
+                            foundPrice = elementText
+                            Log.d(Constants.TAG, elementText)
+                        }
+                    }
+                }
+            }
+        }
+        return foundPrice
+    }
+
+    private fun getFirstPriceBoundingBox(sourceBitmap: Bitmap) : BoundingBox?
+    {
+        var firstBox: BoundingBox? = null
         val labels: Array<String> = detector.Identifiers.getStringVector()
 
         if (labels.size != 0) {
@@ -115,20 +188,13 @@ class PriceEngine(private val context : WeakReference<Context>) {
                 {
                     if(confidence >= MIN_CONFIDENCE_THRESHOLD)
                     {
-                        //Enlarge the bounding box so that we can be sure the contents will be picked up by OCR.
-                        location.left -= location.left * 0.65f
-                        location.top -= location.top * 0.1f
-                        location.right *= 1.25f
-                        location.bottom *= 1.20f
+                        //Enlarge the bounding box to further ensure the contents will be picked up by OCR.
+                        location.left -= location.left * 0.45f
+                        location.top -= location.top * 0.05f
+                        location.right *= 1.15f
+                        location.bottom *= 1.05f
 
-                        results.add(
-                            BoundingBox(
-                                classIndex,
-                                label,
-                                confidence,
-                                location
-                            )
-                        )
+                        firstBox = BoundingBox(classIndex, label, confidence, location)
                     }
                     else
                     {
@@ -146,23 +212,59 @@ class PriceEngine(private val context : WeakReference<Context>) {
 
         if(priceNotDetectedFrames > MAX_EMPTY_OR_LOW_CONFIDENCE_FRAMES)
         {
-            detectionStatusHandler?.onPriceNotDetectedAfterSomeTime()
+            detectionStatusHandler?.onPriceLost()
             priceNotDetectedFrames = 0
         }
 
-        return results
+        return firstBox
     }
 
-    fun classifyAsync(imageProxy: ImageProxy, orientation : Int): Task<ArrayList<BoundingBox>> {
-        return call(executorService, Callable<ArrayList<BoundingBox>> {
-            classify(imageProxy, orientation)
-            Log.d(Constants.TAG, String.format("Detector ran in: %.0f", detector.TimeInMilliseconds.getFloat()));
-            return@Callable getBoundingBoxes()
-        })
+    fun findPricesAsync(sourceImage: ImageProxy, displayScaleFactor: Int): Task<String> {
+
+        var croppedImage : Bitmap? = null
+
+        return call(executorService, Callable<Bitmap?> {
+            return@Callable findPrice(sourceImage, displayScaleFactor)
+        }).continueWithTask { findPriceTask ->
+
+            var priceRecoTask : Task<Text?> = call(Callable<Text?> { return@Callable null })
+
+            croppedImage = findPriceTask.result
+            if(croppedImage != null)
+            {
+                detectionStatusHandler?.onPriceFound()
+                val image = InputImage.fromBitmap(croppedImage!!, 0)
+                priceRecoTask = recognizer.process(image)
+            }
+            else
+            {
+                Log.d(Constants.TAG, "No prices found in image.")
+            }
+
+            return@continueWithTask priceRecoTask
+
+        }.continueWith { findPriceTextTask ->
+
+            croppedImage?.recycle()
+
+            var foundPrice = ""
+
+            if(findPriceTextTask.isSuccessful)
+            {
+                foundPrice = getPriceText(findPriceTextTask.result)
+            }
+            else
+            {
+                Log.e(Constants.TAG, "An error occurred while attempting to find text in a price tag.", findPriceTextTask.exception)
+            }
+
+            return@continueWith foundPrice
+        }
     }
 
     interface DetectionStatusHandler
     {
-        fun onPriceNotDetectedAfterSomeTime()
+        fun onPriceLost()
+        fun onPriceFound()
     }
 }
