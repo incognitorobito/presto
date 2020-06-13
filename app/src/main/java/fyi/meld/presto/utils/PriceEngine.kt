@@ -93,7 +93,7 @@ class PriceEngine(private val context : WeakReference<Context>) {
         return Bitmap.createBitmap(convertedBitmap, 0, 0, convertedBitmap.width, convertedBitmap.height, rotationMatrix, true)
     }
 
-    private fun findPrice(sourceImage: ImageProxy, displayScaleFactor: Int) : Bitmap? {
+    private fun findPrice(sourceImage: ImageProxy, displayScaleFactor: Int) : Pair<Bitmap?, BoundingBox?> {
 
         check(isInitialized) { "Price Engine has not yet been initialized." }
 
@@ -105,7 +105,7 @@ class PriceEngine(private val context : WeakReference<Context>) {
 
         Log.d(Constants.TAG, String.format("Detector ran in: %.0f", detector.TimeInMilliseconds.getFloat()));
 
-        val firstBox = getFirstPriceBoundingBox(sourceBitmap)
+        val firstBox = findFirstBoundingBox(sourceBitmap)
 
         if(firstBox != null)
         {
@@ -126,14 +126,14 @@ class PriceEngine(private val context : WeakReference<Context>) {
             }
             catch(e: IllegalArgumentException)
             {
-                Log.e(Constants.TAG, "An error occurred while attempting to find a price tag.", e)
+                Log.e(Constants.TAG, "Cannot properly crop the bitmap for this particular price.")
             }
         }
 
         sourceBitmap.recycle()
         sourceImage.close()
 
-        return croppedBitmap
+        return Pair(croppedBitmap, firstBox)
     }
 
     private fun getPriceText(result: Text?) : String
@@ -168,7 +168,7 @@ class PriceEngine(private val context : WeakReference<Context>) {
         return foundPrice
     }
 
-    private fun getFirstPriceBoundingBox(sourceBitmap: Bitmap) : BoundingBox?
+    private fun findFirstBoundingBox(sourceBitmap: Bitmap) : BoundingBox?
     {
         var firstBox: BoundingBox? = null
         val labels: Array<String> = detector.Identifiers.getStringVector()
@@ -222,17 +222,20 @@ class PriceEngine(private val context : WeakReference<Context>) {
     fun findPricesAsync(sourceImage: ImageProxy, displayScaleFactor: Int): Task<String> {
 
         var croppedImage : Bitmap? = null
+        var boundingBox : BoundingBox? = null
 
-        return call(executorService, Callable<Bitmap?> {
+        return call(executorService, Callable<Pair<Bitmap?, BoundingBox?>> {
             return@Callable findPrice(sourceImage, displayScaleFactor)
         }).continueWithTask { findPriceTask ->
 
             var priceRecoTask : Task<Text?> = call(Callable<Text?> { return@Callable null })
 
-            croppedImage = findPriceTask.result
+            croppedImage = findPriceTask.result.first
+            boundingBox = findPriceTask.result.second
+
             if(croppedImage != null)
             {
-                detectionStatusHandler?.onPriceFound()
+                detectionStatusHandler?.onPriceFound(boundingBox)
                 val image = InputImage.fromBitmap(croppedImage!!, 0)
                 priceRecoTask = recognizer.process(image)
             }
@@ -265,6 +268,6 @@ class PriceEngine(private val context : WeakReference<Context>) {
     interface DetectionStatusHandler
     {
         fun onPriceLost()
-        fun onPriceFound()
+        fun onPriceFound(box: BoundingBox?)
     }
 }
