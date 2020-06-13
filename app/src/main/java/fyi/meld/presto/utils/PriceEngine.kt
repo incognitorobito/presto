@@ -35,7 +35,7 @@ class PriceEngine(private val context : WeakReference<Context>) {
 
     private lateinit var detector: ObjectDetector
     private lateinit var recognizer: TextRecognizer;
-    private var availableLabels = arrayListOf<String>()
+    private lateinit var availableLabels : List<String>
     private var isInitialized = false
     private val executorService: ExecutorService = Executors.newSingleThreadExecutor()
     private var priceNotDetectedFrames = 0
@@ -47,7 +47,7 @@ class PriceEngine(private val context : WeakReference<Context>) {
             .setModelFile("cvexport.manifest")
             .build()
 
-        availableLabels = config.SupportedIdentifiers.stringVector.toList() as ArrayList<String>
+        availableLabels = config.SupportedIdentifiers.stringVector.asList()
         detector = ObjectDetector(config)
 
         recognizer = TextRecognition.getClient()
@@ -153,12 +153,12 @@ class PriceEngine(private val context : WeakReference<Context>) {
                     val lineFrame = line.boundingBox
                     for (element in line.elements) {
                         val elementText = element.text
-                        val elementCornerPoints = element.cornerPoints
-                        val elementFrame = element.boundingBox
 
-                        if(elementText.matches(Regex(Constants.US_CURRENCY_REGEX)))
+                        var potentialPrice = if (elementText.startsWith('$')) elementText.drop(1) else elementText
+
+                        if(potentialPrice.matches(Regex(Constants.US_CURRENCY_REGEX)))
                         {
-                            foundPrice = elementText
+                            foundPrice = potentialPrice
                             Log.d(Constants.TAG, elementText)
                         }
                     }
