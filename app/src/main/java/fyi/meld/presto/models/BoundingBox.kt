@@ -26,4 +26,12 @@ data class BoundingBox (val classIndex: Int, val classIdentifier: String?, priva
                 otherBox.location?.top!! <= this.location?.top!! )
     }
 
+    fun getArea(): Float
+    {
+        val boxWidth = location?.right!! - location?.left!!
+        val boxHeight = location?.bottom!! - location?.top!!
+
+        return boxWidth * boxHeight
+    }
+
 }

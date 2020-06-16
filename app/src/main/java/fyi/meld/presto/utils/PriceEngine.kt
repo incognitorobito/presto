@@ -26,7 +26,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 
-private const val MAX_EMPTY_OR_LOW_CONFIDENCE_FRAMES = 1
+private const val MAX_EMPTY_OR_LOW_CONFIDENCE_FRAMES = 2
 private const val MIN_CONFIDENCE_THRESHOLD = 0.50f
 
 class PriceEngine(private val context : WeakReference<Context>) {
@@ -38,7 +38,7 @@ class PriceEngine(private val context : WeakReference<Context>) {
     private lateinit var availableLabels : List<String>
     private var isInitialized = false
     private val executorService: ExecutorService = Executors.newSingleThreadExecutor()
-    private var priceNotDetectedFrames = 0
+    private var lowOrNoDetectionFrames = 0
 
     fun initialize() {
         CustomVisionManager.setAppContext(context.get())
@@ -105,7 +105,7 @@ class PriceEngine(private val context : WeakReference<Context>) {
 
         Log.d(Constants.TAG, String.format("Detector ran in: %.0f", detector.TimeInMilliseconds.getFloat()));
 
-        val firstBox = findFirstBoundingBox(sourceBitmap)
+        val firstBox = findLargestBoundingBox(sourceBitmap)
 
         if(firstBox != null)
         {
@@ -168,9 +168,9 @@ class PriceEngine(private val context : WeakReference<Context>) {
         return foundPrice
     }
 
-    private fun findFirstBoundingBox(sourceBitmap: Bitmap) : BoundingBox?
+    private fun findLargestBoundingBox(sourceBitmap: Bitmap) : BoundingBox?
     {
-        var firstBox: BoundingBox? = null
+        var largestBox: BoundingBox? = null
         val labels: Array<String> = detector.Identifiers.getStringVector()
 
         if (labels.size != 0) {
@@ -184,39 +184,36 @@ class PriceEngine(private val context : WeakReference<Context>) {
                 val location = boundingBoxes[i]
                 val classIndex = indexes[i]
 
-                if(label == "price")
+                if(label == "price" && confidence >= MIN_CONFIDENCE_THRESHOLD)
                 {
-                    if(confidence >= MIN_CONFIDENCE_THRESHOLD)
-                    {
-                        //Enlarge the bounding box to further ensure the contents will be picked up by OCR.
-                        location.left -= location.left * 0.45f
-                        location.top -= location.top * 0.05f
-                        location.right *= 1.15f
-                        location.bottom *= 1.05f
+//                    Enlarge the bounding box to further ensure the contents will be picked up by OCR.
+                    location.left -= location.left * 0.45f
+                    location.top -= location.top * 0.05f
+                    location.right *= 1.15f
+                    location.bottom *= 1.05f
 
-                        firstBox = BoundingBox(classIndex, label, confidence, location)
-                    }
-                    else
-                    {
-                        priceNotDetectedFrames +1
-                    }
+                    val box = BoundingBox(classIndex, label, confidence, location)
 
-                    break
+                    if(largestBox == null || (largestBox.getArea() <= box.getArea()))
+                    {
+                        largestBox = box
+                    }
                 }
             }
         }
-        else
+
+        if(largestBox == null)
         {
-            priceNotDetectedFrames += 1
+            lowOrNoDetectionFrames +=1
         }
 
-        if(priceNotDetectedFrames > MAX_EMPTY_OR_LOW_CONFIDENCE_FRAMES)
+        if(lowOrNoDetectionFrames >= MAX_EMPTY_OR_LOW_CONFIDENCE_FRAMES)
         {
             detectionStatusHandler?.onPriceLost()
-            priceNotDetectedFrames = 0
+            lowOrNoDetectionFrames = 0
         }
 
-        return firstBox
+        return largestBox
     }
 
     fun findPricesAsync(sourceImage: ImageProxy, displayScaleFactor: Int): Task<String> {
