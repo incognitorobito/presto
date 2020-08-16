@@ -1,5 +1,6 @@
 package fyi.meld.presto.ui
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -52,10 +53,12 @@ class CartFragment : Fragment(), View.OnClickListener {
         if(prestoVM.storeTrip.value!!.items.isNotEmpty() && empty_cart_text.visibility == View.VISIBLE)
         {
             empty_cart_text.visibility = View.INVISIBLE
+            cart_container.setBackgroundColor(Color.WHITE);
         }
         else if(prestoVM.storeTrip.value!!.items.isEmpty())
         {
             empty_cart_text.visibility = View.VISIBLE
+            cart_container.setBackgroundResource(R.drawable.popsicle_background);
         }
     }
 

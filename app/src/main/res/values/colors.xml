@@ -2,8 +2,8 @@
 <resources>
     <color name="primary">@color/lightGray</color>
     <color name="primaryDark">@color/primaryGray</color>
-    <color name="accent">#78BC61</color>
+    <color name="accent">#5FB49C</color>
     <color name="primaryGray">#1B1B1B</color>
     <color name="secondaryGray">#2B2B2B</color>
-    <color name="lightGray">#4B4B4B</color>
+    <color name="lightGray">#555555</color>
 </resources>

@@ -124,7 +124,6 @@ class PriceEngineFragment: Fragment(), PriceEngine.DetectionStatusHandler, View.
     private fun showPriceDiag(detectedPrice : String)
     {
         newItem = CartItem("", ItemType.Other, detectedPrice.toFloat())
-        newItem?.name = String.format("$%.2f", newItem!!.basePrice)
         val priceAfterTax = String.format("$%.2f", newItem!!.getPriceAfterTax(8.26f))
 
         price_tag_diag.animate()

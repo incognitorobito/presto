@@ -10,29 +10,70 @@
     android:background="@drawable/popsicle_background"
     android:orientation="vertical">
 
+    <LinearLayout
+        android:id="@+id/cart_header_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="25dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/app_name_header_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_weight="1"
+            android:text="Presto"
+            android:textAlignment="viewStart"
+            android:textAppearance="@style/largeHeader" />
+
+        <TextView
+            android:id="@+id/shopping_header_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:layout_weight="1"
+            android:text="Your Shopping Cart"
+
+            android:textAlignment="viewStart"
+            android:textAppearance="@style/massiveHeader" />
+
+
+        <TextView
+            android:id="@+id/view_extra_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="10:00AM Store Trip"
+            android:textAlignment="viewStart" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/empty_cart_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/hint_empty_cart"
         android:textAlignment="center"
-        android:translationY="60dp"
+        android:translationY="-30dp"
         android:textColor="@color/primaryDark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/cart_header_container" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/cart_items_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_gravity="center_horizontal"
-        android:paddingTop="32dp"
+        android:paddingHorizontal="25dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/cart_header_container" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/new_item_btn"

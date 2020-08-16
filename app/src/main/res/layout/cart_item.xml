@@ -6,36 +6,37 @@
     android:layout_height="wrap_content"
     android:gravity="center">
 
-    <androidx.cardview.widget.CardView
-        android:layout_width="300dp"
-        android:layout_height="150dp"
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
         android:layout_marginVertical="5dp"
-        app:cardBackgroundColor="@color/secondaryGray"
+        app:cardBackgroundColor="@color/accent"
         app:cardCornerRadius="4dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:paddingHorizontal="16dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <ImageView
                 android:id="@+id/cart_item_image"
-                android:layout_width="0dp"
+                android:layout_width="72dp"
                 android:layout_height="match_parent"
                 android:scaleType="center"
-                android:scaleX="0.75"
-                android:scaleY="0.75"
+                android:scaleX="0.35"
+                android:scaleY="0.35"
                 android:paddingHorizontal="8dp"
                 android:tint="@android:color/white"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/cart_item_info_layout"
                 app:srcCompat="@drawable/ic_fa_bread_slice" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/cart_item_info_layout"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:orientation="horizontal"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/cart_item_image"
@@ -43,72 +44,64 @@
 
                 <LinearLayout
                     android:id="@+id/cart_item_price_layout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="75dp"
-                    android:orientation="horizontal"
-                    app:layout_constraintBottom_toTopOf="@+id/cart_item_type_layout"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="8dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/cart_item_quantity_text"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
-                    <ImageView
-                        android:id="@+id/cart_item_price_icon"
-                        android:layout_width="75dp"
-                        android:layout_height="match_parent"
-                        android:scaleType="fitCenter"
-                        android:scaleX="0.35"
-                        android:scaleY="0.35"
-                        android:src="@drawable/ic_fa_dollar_sign"
-                        android:tint="@android:color/white" />
-
                     <TextView
                         android:id="@+id/cart_item_price_text"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_weight="1"
-                        android:text="3.99"
-                        android:textAlignment="center"
+                        android:text="$3.99"
+                        android:textAlignment="viewStart"
                         android:textColor="@android:color/white" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/cart_item_type_layout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="75dp"
-                    android:orientation="horizontal"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/cart_item_price_layout"
-                    app:layout_constraintStart_toStartOf="parent">
-
-                    <ImageView
-                        android:id="@+id/cart_item_type_icon"
-                        android:layout_width="75dp"
-                        android:layout_height="match_parent"
-                        android:scaleType="fitCenter"
-                        android:scaleX="0.35"
-                        android:scaleY="0.35"
-                        android:src="@drawable/ic_fa_bread_slice"
-                        android:tint="@android:color/white"
-                        />
 
                     <TextView
                         android:id="@+id/cart_item_type_text"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_weight="1"
-                        android:text="Groceries"
-                        android:textAlignment="center"
+                        android:text="Item Name - Groceries"
+                        android:textAlignment="viewStart"
                         android:textColor="@android:color/white" />
 
                 </LinearLayout>
+
+                <TextView
+                    android:id="@+id/cart_item_quantity_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="x1"
+                    android:textAlignment="center"
+                    android:gravity="center"
+                    android:paddingHorizontal="8dp"
+                    android:textAppearance="@style/mediumHeader"
+                    android:textColor="@android:color/white"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/cart_item_menu_btn"
+                    app:layout_constraintStart_toEndOf="@+id/cart_item_price_layout"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageButton
+                    android:id="@+id/cart_item_menu_btn"
+                    style="?android:attr/actionOverflowButtonStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:tint="@android:color/white"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>
 

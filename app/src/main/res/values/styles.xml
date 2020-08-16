@@ -6,20 +6,25 @@
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primaryDark</item>
         <item name="colorSecondary">@color/accent</item>
+        <item name="fontFamily">@font/metropolis_regular</item>
     </style>
 
     <style name="massiveHeader" parent="@android:style/TextAppearance">
         <item name="android:textSize">36sp</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/metropolis_medium</item>
+        <item name="android:textColor">@color/lightGray</item>
     </style>
 
     <style name="largeHeader" parent="@android:style/TextAppearance">
         <item name="android:textSize">24sp</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/metropolis_bold</item>
     </style>
 
     <style name="mediumHeader" parent="@android:style/TextAppearance">
         <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/metropolis_bold</item>
     </style>
 
     <style name="priceHeader" parent="@android:style/TextAppearance">
