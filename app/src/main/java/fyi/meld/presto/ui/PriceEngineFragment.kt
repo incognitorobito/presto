@@ -125,8 +125,7 @@ class PriceEngineFragment: Fragment(), PriceEngine.DetectionStatusHandler, View.
     private fun saveBitmap() : String
     {
         var filePath = ""
-        val dataDir: File = Environment.getDataDirectory()
-        val dest = File(dataDir, newItem?.uid.toString() + ".png")
+        val dest = File(requireActivity().filesDir, newItem?.uid.toString() + ".png")
 
         try {
             val out = FileOutputStream(dest)

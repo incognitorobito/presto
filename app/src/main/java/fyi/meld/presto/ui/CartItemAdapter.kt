@@ -22,7 +22,6 @@ import java.lang.ref.WeakReference
 
 class CartItemAdapter(val baseContext : Context, private val vm : PrestoViewModel) : RecyclerView.Adapter<CartItemViewHolder>(), PopupMenu.OnMenuItemClickListener {
 
-    private lateinit var cartItem: CartItem
     private var trip = vm.storeTrip.value!!
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CartItemViewHolder {
@@ -37,7 +36,7 @@ class CartItemAdapter(val baseContext : Context, private val vm : PrestoViewMode
     }
 
     override fun onBindViewHolder(holder: CartItemViewHolder, position: Int) {
-        cartItem = trip.items[position]
+        val cartItem: CartItem = trip.items[position]
         holder.itemPrice.text = "$" + cartItem.basePrice.toString()
         holder.itemType.text = if (cartItem.name.isNullOrEmpty()) cartItem.type.toString() else cartItem.name.toString() + " - " + cartItem.type.toString()
         holder.itemImage.setImageResource(ItemTypeToDrawable[cartItem.type]!!)
@@ -60,45 +59,45 @@ class CartItemAdapter(val baseContext : Context, private val vm : PrestoViewMode
     }
 
     fun openItemFragment() {
-        vm.switchToEditItemUI(cartItem)
+//        vm.switchToEditItemUI(cartItem)
     }
 
     fun openQuantityDialog() {
-        val inflater = LayoutInflater.from(baseContext)
-        val quantityDiagView = inflater.inflate(R.layout.item_qty_diag, null)
-        val quantityInput = quantityDiagView.edit_qty_input
-        quantityInput.setText(cartItem.qty.toString())
-
-
-        var quantityDiag = MaterialAlertDialogBuilder(baseContext)
-            .setTitle(baseContext.getString(R.string.edit_quantity_title))
-            .setView(quantityDiagView)
-            .setNegativeButton("Cancel") { dialog, which ->
-                dialog.cancel()
-            }
-            .setPositiveButton("Save") { dialog, which ->
-                if(quantityInput.text.toString().isNotEmpty() && quantityDiagView.edit_qty_input.text.toString().isDigitsOnly())
-                {
-                    cartItem.qty = quantityInput.text.toString().toInt()
-                    vm.updateCartTotals()
-                }
-            }
-            .create()
-
-
-        quantityDiag.show();
+//        val inflater = LayoutInflater.from(baseContext)
+//        val quantityDiagView = inflater.inflate(R.layout.item_qty_diag, null)
+//        val quantityInput = quantityDiagView.edit_qty_input
+//        quantityInput.setText(cartItem.qty.toString())
+//
+//
+//        var quantityDiag = MaterialAlertDialogBuilder(baseContext)
+//            .setTitle(baseContext.getString(R.string.edit_quantity_title))
+//            .setView(quantityDiagView)
+//            .setNegativeButton("Cancel") { dialog, which ->
+//                dialog.cancel()
+//            }
+//            .setPositiveButton("Save") { dialog, which ->
+//                if(quantityInput.text.toString().isNotEmpty() && quantityDiagView.edit_qty_input.text.toString().isDigitsOnly())
+//                {
+//                    cartItem.qty = quantityInput.text.toString().toInt()
+//                    vm.updateCartTotals()
+//                }
+//            }
+//            .create()
+//
+//
+//        quantityDiag.show();
     }
 
     fun openRemovalDialog() {
-        MaterialAlertDialogBuilder(baseContext)
-            .setTitle(baseContext.getString(R.string.remove_item_title))
-            .setMessage(baseContext.getString(R.string.remove_item_hint))
-            .setNegativeButton("Cancel") { dialog, which ->
-                dialog.cancel()
-            }
-            .setPositiveButton("Remove") { dialog, which ->
-                vm.removeFromCart(cartItem)
-            }
-            .show()
+//        MaterialAlertDialogBuilder(baseContext)
+//            .setTitle(baseContext.getString(R.string.remove_item_title))
+//            .setMessage(baseContext.getString(R.string.remove_item_hint))
+//            .setNegativeButton("Cancel") { dialog, which ->
+//                dialog.cancel()
+//            }
+//            .setPositiveButton("Remove") { dialog, which ->
+//                vm.removeFromCart(cartItem)
+//            }
+//            .show()
     }
 }

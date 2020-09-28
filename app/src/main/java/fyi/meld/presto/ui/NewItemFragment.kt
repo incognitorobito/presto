@@ -1,9 +1,11 @@
 package fyi.meld.presto.ui
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
@@ -23,7 +25,7 @@ import kotlinx.android.synthetic.main.new_item_fragment.*
  * Use the [NewItemFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class NewItemFragment : Fragment() {
+class NewItemFragment constructor(val selectedItem: CartItem?) : Fragment() {
 
     private lateinit var prestoVM : PrestoViewModel
 
@@ -40,6 +42,10 @@ class NewItemFragment : Fragment() {
 
         prestoVM = vita.with(VitaOwner.Single(requireActivity())).getViewModel<PrestoViewModel>()
 
+        selectedItem?.let {
+            populateFields()
+        }
+
         save_item_btn.setOnClickListener { view ->
             trySaveItem()
         }
@@ -48,6 +54,22 @@ class NewItemFragment : Fragment() {
             val itemType = getItemTypeFromButton(checkedId)
             item_image.setImageResource(ItemTypeToDrawable.get(itemType)!!)
         })
+    }
+
+    private fun populateFields()
+    {
+        item_name_input.setText(selectedItem?.name)
+        item_price_input.setText(selectedItem?.basePrice.toString())
+        item_type_select.check(selectedItem?.type!!.ordinal)
+
+        if(selectedItem?.photoUri.isNotBlank())
+        {
+            item_image.scaleType = ImageView.ScaleType.FIT_CENTER
+            item_image.imageTintList = null
+            item_image.setImageURI(Uri.parse(selectedItem?.photoUri))
+            image_placeholder_hint.visibility = View.INVISIBLE
+        }
+
     }
 
     private fun getItemTypeFromButton(checkedID : Int) : ItemType
@@ -67,8 +89,17 @@ class NewItemFragment : Fragment() {
         else
         {
             val itemType = getItemTypeFromButton(checkedID)
-            val newCartItem = CartItem(item_name_input.text.toString(), itemType, item_price_input.text.toString().toFloat())
-            prestoVM.addToCart(newCartItem)
+
+            if(selectedItem != null)
+            {
+                //TODO Update
+            }
+            else
+            {
+                val newCartItem = CartItem(item_name_input.text.toString(), itemType, item_price_input.text.toString().toFloat())
+                prestoVM.addToCart(newCartItem)
+            }
+
             prestoVM.switchToCartUI()
         }
     }
@@ -76,6 +107,7 @@ class NewItemFragment : Fragment() {
     companion object {
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance() = NewItemFragment()
+        fun newInstance() = NewItemFragment(null)
+        fun newInstance(item: CartItem) = NewItemFragment(item)
     }
 }

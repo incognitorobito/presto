@@ -76,7 +76,12 @@ class MainActivity : AppCompatActivity(), LifecycleOwner, PrestoViewModel.Switch
     }
 
     override fun onEditItemUIRequested(item: CartItem) {
-        TODO("Not yet implemented")
+        val newItemUI = NewItemFragment.newInstance(item)
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.fragment_container, newItemUI)
+            .addToBackStack(null)
+            .commit()
     }
 
     override fun onBackPressed() {

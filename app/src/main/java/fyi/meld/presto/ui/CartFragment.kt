@@ -11,12 +11,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.androidisland.vita.VitaOwner
 import com.androidisland.vita.vita
 import fyi.meld.presto.R
+import fyi.meld.presto.models.CartItem
 import fyi.meld.presto.utils.Presto
 import fyi.meld.presto.viewmodels.PrestoViewModel
 import kotlinx.android.synthetic.main.cart_fragment.*
 import java.lang.ref.WeakReference
 
-class CartFragment : Fragment(), View.OnClickListener, PrestoViewModel.CartUpdatedHandler{
+class CartFragment: Fragment(), View.OnClickListener, PrestoViewModel.CartUpdatedHandler{
 
     lateinit var mCartItemAdapter: CartItemAdapter
     private lateinit var prestoVM : PrestoViewModel

@@ -130,7 +130,6 @@ class PriceEngine(private val context : WeakReference<Context>) {
             }
         }
 
-        sourceBitmap.recycle()
         sourceImage.close()
 
         return Triple(sourceBitmap, croppedBitmap, firstBox)
