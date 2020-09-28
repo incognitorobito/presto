@@ -93,7 +93,7 @@ class PriceEngine(private val context : WeakReference<Context>) {
         return Bitmap.createBitmap(convertedBitmap, 0, 0, convertedBitmap.width, convertedBitmap.height, rotationMatrix, true)
     }
 
-    private fun findPrice(sourceImage: ImageProxy, displayScaleFactor: Int) : Pair<Bitmap?, BoundingBox?> {
+    private fun findPrice(sourceImage: ImageProxy, displayScaleFactor: Int) : Triple<Bitmap?, Bitmap?, BoundingBox?> {
 
         check(isInitialized) { "Price Engine has not yet been initialized." }
 
@@ -133,7 +133,7 @@ class PriceEngine(private val context : WeakReference<Context>) {
         sourceBitmap.recycle()
         sourceImage.close()
 
-        return Pair(croppedBitmap, firstBox)
+        return Triple(sourceBitmap, croppedBitmap, firstBox)
     }
 
     private fun getPriceText(result: Text?) : String
@@ -216,19 +216,21 @@ class PriceEngine(private val context : WeakReference<Context>) {
         return largestBox
     }
 
-    fun findPricesAsync(sourceImage: ImageProxy, displayScaleFactor: Int): Task<String> {
+    fun findPricesAsync(sourceImage: ImageProxy, displayScaleFactor: Int): Task<Pair<String, Bitmap>> {
 
-        var croppedImage : Bitmap? = null
-        var boundingBox : BoundingBox? = null
+        var sourceBitmap: Bitmap? = null
+        var croppedImage: Bitmap? = null
+        var boundingBox: BoundingBox?
 
-        return call(executorService, Callable<Pair<Bitmap?, BoundingBox?>> {
+        return call(executorService, Callable<Triple<Bitmap?, Bitmap?, BoundingBox?>> {
             return@Callable findPrice(sourceImage, displayScaleFactor)
         }).continueWithTask { findPriceTask ->
 
             var priceRecoTask : Task<Text?> = call(Callable<Text?> { return@Callable null })
 
-            croppedImage = findPriceTask.result.first
-            boundingBox = findPriceTask.result.second
+            sourceBitmap = findPriceTask.result.first
+            croppedImage = findPriceTask.result.second
+            boundingBox = findPriceTask.result.third
 
             if(croppedImage != null)
             {
@@ -258,7 +260,7 @@ class PriceEngine(private val context : WeakReference<Context>) {
                 Log.e(Constants.TAG, "An error occurred while attempting to find text in a price tag.", findPriceTextTask.exception)
             }
 
-            return@continueWith foundPrice
+            return@continueWith Pair<String, Bitmap>(foundPrice, sourceBitmap!!)
         }
     }
 

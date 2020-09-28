@@ -11,14 +11,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.androidisland.vita.VitaOwner
 import com.androidisland.vita.vita
 import fyi.meld.presto.R
+import fyi.meld.presto.utils.Presto
 import fyi.meld.presto.viewmodels.PrestoViewModel
 import kotlinx.android.synthetic.main.cart_fragment.*
 import java.lang.ref.WeakReference
 
-class CartFragment : Fragment(), View.OnClickListener {
+class CartFragment : Fragment(), View.OnClickListener, PrestoViewModel.CartUpdatedHandler{
 
     lateinit var mCartItemAdapter: CartItemAdapter
-    private var prestoVM : PrestoViewModel = vita.with(VitaOwner.Multiple(this)).getViewModel<PrestoViewModel>()
+    private lateinit var prestoVM : PrestoViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,6 +31,9 @@ class CartFragment : Fragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        prestoVM = vita.with(VitaOwner.Single(requireActivity())).getViewModel<PrestoViewModel>()
+        prestoVM.cartUpdatedHandler = this
 
         new_item_btn.setOnClickListener(this)
         setupCartItemsView()
@@ -69,12 +73,15 @@ class CartFragment : Fragment(), View.OnClickListener {
 
         mCartItemAdapter = CartItemAdapter(
             requireActivity(),
-            WeakReference(prestoVM.storeTrip.value!!)
-        )
+            prestoVM)
 
         mCartItemAdapter.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
 
         cart_items_view.adapter = mCartItemAdapter
+    }
+
+    override fun onCartUpdated() {
+        updateCartUI()
     }
 
     companion object {

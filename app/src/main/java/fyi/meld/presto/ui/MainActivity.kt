@@ -12,6 +12,7 @@ import androidx.lifecycle.Observer
 import com.androidisland.vita.VitaOwner
 import com.androidisland.vita.vita
 import fyi.meld.presto.R
+import fyi.meld.presto.models.CartItem
 import fyi.meld.presto.utils.Constants
 import fyi.meld.presto.utils.PriceEngine
 import fyi.meld.presto.viewmodels.PrestoViewModel
@@ -74,6 +75,10 @@ class MainActivity : AppCompatActivity(), LifecycleOwner, PrestoViewModel.Switch
         }
     }
 
+    override fun onEditItemUIRequested(item: CartItem) {
+        TODO("Not yet implemented")
+    }
+
     override fun onBackPressed() {
         if (fragmentManager.backStackEntryCount > 0) {
             fragmentManager.popBackStack()
@@ -88,7 +93,7 @@ class MainActivity : AppCompatActivity(), LifecycleOwner, PrestoViewModel.Switch
 
     private fun configureViewModel()
     {
-        prestoVM = vita.with(VitaOwner.Multiple(this)).getViewModel<PrestoViewModel>()
+        prestoVM = vita.with(VitaOwner.Single(this)).getViewModel<PrestoViewModel>()
         prestoVM.switchUIHandler = this
         prestoVM.priceEngine = PriceEngine(WeakReference(this))
         prestoVM.priceEngine.initialize()
@@ -99,8 +104,8 @@ class MainActivity : AppCompatActivity(), LifecycleOwner, PrestoViewModel.Switch
     private fun configureDataObservers()
     {
         prestoVM.storeTrip.observe(this, Observer {
-            cart_size_text.text = it.items.size.toString()
-            cart_total_text.text = "$" + String.format("%.2f", it.getTotalAfterTax())
+            cart_size_text.text = it.size.toString()
+            cart_total_text.text = "$" + String.format("%.2f", it.totalAfterTax)
             tax_rate_text.text = String.format("%.2f", it.localTaxRate) + "%"
         })
     }

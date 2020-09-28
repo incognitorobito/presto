@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:title="Change Quanitty" />
-    <item android:title="Edit Details" />
-    <item android:title="Remove" />
+    <item android:title="Change Quantity" android:id="@+id/changeItemQuantityOption"/>
+    <item android:title="Edit" android:id="@+id/editItemOption"/>
+    <item android:title="Remove" android:id="@+id/removeItemOption"/>
 </menu>

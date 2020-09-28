@@ -1,8 +1,9 @@
 package fyi.meld.presto.ui
 
+import android.graphics.Bitmap
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
-import android.util.DisplayMetrics
 import android.util.Log
 import android.util.Size
 import android.view.LayoutInflater
@@ -15,9 +16,7 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
-import androidx.core.view.marginTop
 import androidx.fragment.app.Fragment
 import com.androidisland.vita.VitaOwner
 import com.androidisland.vita.vita
@@ -30,12 +29,11 @@ import fyi.meld.presto.utils.Constants
 import fyi.meld.presto.utils.ItemType
 import fyi.meld.presto.utils.PriceEngine
 import fyi.meld.presto.viewmodels.PrestoViewModel
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_main.critical_info_container
-import kotlinx.android.synthetic.main.critical_info.*
 import kotlinx.android.synthetic.main.hint_bar.*
 import kotlinx.android.synthetic.main.price_engine_fragment.*
 import kotlinx.android.synthetic.main.price_tag_dialog.*
+import java.io.File
+import java.io.FileOutputStream
 
 
 /**
@@ -52,9 +50,8 @@ class PriceEngineFragment: Fragment(), PriceEngine.DetectionStatusHandler, View.
     private lateinit var mImageAnalysisUseCase : ImageAnalysis
     private lateinit var criticalInfoContainer : View
     private var newItem : CartItem? = null
-
-    private val charPool : List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
-    private var prestoVM : PrestoViewModel = vita.with(VitaOwner.Multiple(this)).getViewModel<PrestoViewModel>()
+    private var newItemBitmap: Bitmap? = null
+    private lateinit var prestoVM : PrestoViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,6 +73,7 @@ class PriceEngineFragment: Fragment(), PriceEngine.DetectionStatusHandler, View.
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        prestoVM = vita.with(VitaOwner.Single(requireActivity())).getViewModel<PrestoViewModel>()
 
         add_to_cart_btn.setOnClickListener(this)
         mCameraProviderFuture = ProcessCameraProvider.getInstance(requireContext());
@@ -87,7 +85,10 @@ class PriceEngineFragment: Fragment(), PriceEngine.DetectionStatusHandler, View.
         when(v?.id)
         {
             R.id.add_to_cart_btn -> {
-                if(newItem != null) {
+                if(newItem != null && newItemBitmap != null) {
+
+                    newItem!!.photoUri = saveBitmap()
+
                     prestoVM.addToCart(newItem!!)
 
                     price_text.visibility = View.GONE
@@ -121,10 +122,30 @@ class PriceEngineFragment: Fragment(), PriceEngine.DetectionStatusHandler, View.
         }
     }
 
-    private fun showPriceDiag(detectedPrice : String)
+    private fun saveBitmap() : String
     {
-        newItem = CartItem("", ItemType.Other, detectedPrice.toFloat())
-        val priceAfterTax = String.format("$%.2f", newItem!!.getPriceAfterTax(8.26f))
+        var filePath = ""
+        val dataDir: File = Environment.getDataDirectory()
+        val dest = File(dataDir, newItem?.uid.toString() + ".png")
+
+        try {
+            val out = FileOutputStream(dest)
+            newItemBitmap?.compress(Bitmap.CompressFormat.PNG, 90, out)
+            out.flush()
+            out.close()
+            filePath = dest.path
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        return filePath
+    }
+
+    private fun showPriceDiag(detectedPrice: Pair<String, Bitmap>)
+    {
+        newItem = CartItem("", ItemType.Other, detectedPrice.first.toFloat())
+        newItemBitmap = detectedPrice.second
+        val priceAfterTax = String.format("$%.2f", newItem?.getPriceAfterTax(8.26f))
 
         price_tag_diag.animate()
             .withStartAction {
@@ -173,13 +194,13 @@ class PriceEngineFragment: Fragment(), PriceEngine.DetectionStatusHandler, View.
 
                 prestoVM.priceEngine.findPricesAsync(imageProxy, displayScaleFactor)
                     .addOnSuccessListener {
-                        Log.d(Constants.TAG, it.toString())
+                        Log.d(Constants.TAG, it.first.toString())
 
                         requireActivity().runOnUiThread {
 
-                            if (it.isNotBlank()) {
+                            if (it.first.isNotBlank()) {
 
-                                if (price_tag_diag.visibility == View.INVISIBLE || ((newItem != null && it != newItem?.name) && price_tag_diag.visibility == View.VISIBLE)) {
+                                if (price_tag_diag.visibility == View.INVISIBLE || ((newItem != null && it.first != newItem?.name) && price_tag_diag.visibility == View.VISIBLE)) {
                                     showPriceDiag(it)
                                 }
                             }
@@ -271,8 +292,12 @@ class PriceEngineFragment: Fragment(), PriceEngine.DetectionStatusHandler, View.
             {
                 price_detected_indicator.visibility = View.INVISIBLE
             }
+            newItemBitmap?.let {
+                it.recycle()
+            }
 
             newItem = null
+            newItemBitmap = null
         }
     }
 

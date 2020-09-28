@@ -13,6 +13,7 @@ object Constants
         ItemType.Groceries to R.drawable.ic_fa_bread_slice,
         ItemType.Personal to R.drawable.ic_fa_beauty_salon,
         ItemType.Other to R.drawable.ic_fa_box)
+    val DIGIT_REGEX = "@\"^\\d\$\"".toRegex()
 }
 
 enum class ItemType

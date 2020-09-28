@@ -13,6 +13,7 @@ import com.androidisland.vita.vita
 import fyi.meld.presto.R
 import fyi.meld.presto.models.CartItem
 import fyi.meld.presto.utils.Constants
+import fyi.meld.presto.utils.Constants.ItemTypeToDrawable
 import fyi.meld.presto.utils.ItemType
 import fyi.meld.presto.viewmodels.PrestoViewModel
 import kotlinx.android.synthetic.main.new_item_fragment.*
@@ -24,7 +25,7 @@ import kotlinx.android.synthetic.main.new_item_fragment.*
  */
 class NewItemFragment : Fragment() {
 
-    private var prestoVM = vita.with(VitaOwner.Multiple(this)).getViewModel<PrestoViewModel>()
+    private lateinit var prestoVM : PrestoViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,20 +37,23 @@ class NewItemFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        prestoVM = vita.with(VitaOwner.Single(requireActivity())).getViewModel<PrestoViewModel>()
+
         save_item_btn.setOnClickListener { view ->
             trySaveItem()
         }
 
         item_type_select.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { group, checkedId ->
             val itemType = getItemTypeFromButton(checkedId)
-            item_image.setImageResource(Constants.ItemTypeToDrawable.get(itemType)!!)
+            item_image.setImageResource(ItemTypeToDrawable.get(itemType)!!)
         })
     }
 
     private fun getItemTypeFromButton(checkedID : Int) : ItemType
     {
-        val checkedButton = view!!.findViewById<RadioButton>(checkedID)
-        return ItemType.valueOf(checkedButton.text.toString())
+        val checkedButton = view?.findViewById<RadioButton>(checkedID)
+        return ItemType.valueOf(checkedButton?.text.toString())
     }
 
     private fun trySaveItem()

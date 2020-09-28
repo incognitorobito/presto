@@ -5,5 +5,8 @@
     <string name="after_tax">after tax</string>
     <string name="add_item_success">Successfully added item to cart</string>
     <string name="add_item_hint">Add item to cart?</string>
+    <string name="remove_item_title">Remove an item</string>
+    <string name="remove_item_hint">Remove this item from your cart?</string>
+    <string name="edit_quantity_title">Change quantity of item</string>
     <string name="scanner_open_hint">Hover over an item and its price</string>
 </resources>

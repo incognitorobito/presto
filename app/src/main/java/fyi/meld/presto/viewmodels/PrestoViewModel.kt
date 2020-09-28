@@ -11,6 +11,7 @@ class PrestoViewModel : ViewModel() {
     var storeTrip : MutableLiveData<StoreTrip> = MutableLiveData()
     var isCameraRunning = false;
     var switchUIHandler : SwitchUIHandler? = null
+    var cartUpdatedHandler: CartUpdatedHandler? = null
 
     lateinit var priceEngine : PriceEngine
 
@@ -18,7 +19,7 @@ class PrestoViewModel : ViewModel() {
 
 
     init {
-        storeTrip.value = mCurrentTrip
+        notifyCartUpdated()
     }
 
     fun shutdownPriceEngine()
@@ -29,7 +30,19 @@ class PrestoViewModel : ViewModel() {
     fun addToCart(item : CartItem)
     {
         mCurrentTrip.addToCart(item)
-        storeTrip.value = mCurrentTrip
+        notifyCartUpdated()
+    }
+
+    fun removeFromCart(item: CartItem)
+    {
+        mCurrentTrip.removeFromCart(item)
+        notifyCartUpdated()
+    }
+
+    fun updateCartTotals()
+    {
+        mCurrentTrip.updateTotals()
+        notifyCartUpdated()
     }
 
     fun switchToNewItemUI()
@@ -42,9 +55,26 @@ class PrestoViewModel : ViewModel() {
         switchUIHandler?.onCartUIRequested()
     }
 
+    fun switchToEditItemUI(item: CartItem)
+    {
+        switchUIHandler?.onEditItemUIRequested(item)
+    }
+
+    private fun notifyCartUpdated()
+    {
+        storeTrip.value = mCurrentTrip
+        cartUpdatedHandler?.onCartUpdated()
+    }
+
     interface SwitchUIHandler
     {
         fun onNewItemUIRequested()
         fun onCartUIRequested()
+        fun onEditItemUIRequested(item: CartItem)
+    }
+
+    interface CartUpdatedHandler
+    {
+        fun onCartUpdated()
     }
 }
