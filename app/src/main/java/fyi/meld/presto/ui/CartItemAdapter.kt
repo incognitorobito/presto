@@ -20,7 +20,7 @@ import fyi.meld.presto.viewmodels.PrestoViewModel
 import kotlinx.android.synthetic.main.item_qty_diag.view.*
 import java.lang.ref.WeakReference
 
-class CartItemAdapter(val baseContext : Context, private val vm : PrestoViewModel) : RecyclerView.Adapter<CartItemViewHolder>(), PopupMenu.OnMenuItemClickListener {
+class CartItemAdapter(val baseContext : Context, private val vm : PrestoViewModel) : RecyclerView.Adapter<CartItemViewHolder>() {
 
     private var trip = vm.storeTrip.value!!
 
@@ -37,6 +37,8 @@ class CartItemAdapter(val baseContext : Context, private val vm : PrestoViewMode
 
     override fun onBindViewHolder(holder: CartItemViewHolder, position: Int) {
         val cartItem: CartItem = trip.items[position]
+        holder.vm = vm
+        holder.cartItem = cartItem
         holder.itemPrice.text = "$" + cartItem.basePrice.toString()
         holder.itemType.text = if (cartItem.name.isNullOrEmpty()) cartItem.type.toString() else cartItem.name.toString() + " - " + cartItem.type.toString()
         holder.itemImage.setImageResource(ItemTypeToDrawable[cartItem.type]!!)
@@ -44,60 +46,8 @@ class CartItemAdapter(val baseContext : Context, private val vm : PrestoViewMode
         holder.itemOptions.setOnClickListener {
             val popup = PopupMenu(baseContext, it)
             popup.inflate(R.menu.cart_item_options)
-            popup.setOnMenuItemClickListener(this)
+            popup.setOnMenuItemClickListener(holder)
             popup.show()
         }
-    }
-
-    override fun onMenuItemClick(item: MenuItem?): Boolean {
-        when(item?.itemId) {
-            R.id.changeItemQuantityOption -> openQuantityDialog();
-            R.id.editItemOption -> openItemFragment();
-            R.id.removeItemOption -> openRemovalDialog();
-        }
-        return true;
-    }
-
-    fun openItemFragment() {
-//        vm.switchToEditItemUI(cartItem)
-    }
-
-    fun openQuantityDialog() {
-//        val inflater = LayoutInflater.from(baseContext)
-//        val quantityDiagView = inflater.inflate(R.layout.item_qty_diag, null)
-//        val quantityInput = quantityDiagView.edit_qty_input
-//        quantityInput.setText(cartItem.qty.toString())
-//
-//
-//        var quantityDiag = MaterialAlertDialogBuilder(baseContext)
-//            .setTitle(baseContext.getString(R.string.edit_quantity_title))
-//            .setView(quantityDiagView)
-//            .setNegativeButton("Cancel") { dialog, which ->
-//                dialog.cancel()
-//            }
-//            .setPositiveButton("Save") { dialog, which ->
-//                if(quantityInput.text.toString().isNotEmpty() && quantityDiagView.edit_qty_input.text.toString().isDigitsOnly())
-//                {
-//                    cartItem.qty = quantityInput.text.toString().toInt()
-//                    vm.updateCartTotals()
-//                }
-//            }
-//            .create()
-//
-//
-//        quantityDiag.show();
-    }
-
-    fun openRemovalDialog() {
-//        MaterialAlertDialogBuilder(baseContext)
-//            .setTitle(baseContext.getString(R.string.remove_item_title))
-//            .setMessage(baseContext.getString(R.string.remove_item_hint))
-//            .setNegativeButton("Cancel") { dialog, which ->
-//                dialog.cancel()
-//            }
-//            .setPositiveButton("Remove") { dialog, which ->
-//                vm.removeFromCart(cartItem)
-//            }
-//            .show()
     }
 }

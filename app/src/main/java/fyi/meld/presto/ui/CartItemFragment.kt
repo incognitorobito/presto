@@ -14,7 +14,6 @@ import com.androidisland.vita.VitaOwner
 import com.androidisland.vita.vita
 import fyi.meld.presto.R
 import fyi.meld.presto.models.CartItem
-import fyi.meld.presto.utils.Constants
 import fyi.meld.presto.utils.Constants.ItemTypeToDrawable
 import fyi.meld.presto.utils.ItemType
 import fyi.meld.presto.viewmodels.PrestoViewModel
@@ -22,10 +21,10 @@ import kotlinx.android.synthetic.main.new_item_fragment.*
 
 /**
  * A simple [Fragment] subclass.
- * Use the [NewItemFragment.newInstance] factory method to
+ * Use the [CartItemFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class NewItemFragment constructor(val selectedItem: CartItem?) : Fragment() {
+class CartItemFragment constructor(val selectedItem: CartItem?) : Fragment() {
 
     private lateinit var prestoVM : PrestoViewModel
 
@@ -42,25 +41,37 @@ class NewItemFragment constructor(val selectedItem: CartItem?) : Fragment() {
 
         prestoVM = vita.with(VitaOwner.Single(requireActivity())).getViewModel<PrestoViewModel>()
 
-        selectedItem?.let {
-            populateFields()
-        }
-
         save_item_btn.setOnClickListener { view ->
             trySaveItem()
         }
 
-        item_type_select.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { group, checkedId ->
-            val itemType = getItemTypeFromButton(checkedId)
-            item_image.setImageResource(ItemTypeToDrawable.get(itemType)!!)
-        })
+        if(selectedItem != null)
+        {
+            populateFields()
+        }
+        else
+        {
+            item_type_select.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { group, checkedId ->
+                val itemType = getItemTypeFromButton(checkedId)
+                item_image.setImageResource(ItemTypeToDrawable.get(itemType)!!)
+            })
+        }
     }
 
     private fun populateFields()
     {
         item_name_input.setText(selectedItem?.name)
         item_price_input.setText(selectedItem?.basePrice.toString())
-        item_type_select.check(selectedItem?.type!!.ordinal)
+
+        val itemTypeOrd = selectedItem?.type!!.ordinal
+
+        when(itemTypeOrd)
+        {
+            0 -> groceries_select.isChecked = true
+            1 -> personal_select.isChecked = true
+            2 -> fun_select.isChecked = true
+            3 -> other_select.isChecked = true
+        }
 
         if(selectedItem?.photoUri.isNotBlank())
         {
@@ -92,7 +103,10 @@ class NewItemFragment constructor(val selectedItem: CartItem?) : Fragment() {
 
             if(selectedItem != null)
             {
-                //TODO Update
+                selectedItem.name = item_name_input.text.toString()
+                selectedItem.type = itemType
+                selectedItem.basePrice = item_price_input.text.toString().toFloat()
+                prestoVM.updateCartTotals()
             }
             else
             {
@@ -107,7 +121,7 @@ class NewItemFragment constructor(val selectedItem: CartItem?) : Fragment() {
     companion object {
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance() = NewItemFragment(null)
-        fun newInstance(item: CartItem) = NewItemFragment(item)
+        fun newInstance() = CartItemFragment(null)
+        fun newInstance(item: CartItem) = CartItemFragment(item)
     }
 }

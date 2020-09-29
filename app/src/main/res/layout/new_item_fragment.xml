@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ui.NewItemFragment">
+    tools:context=".ui.CartItemFragment">
 
     <LinearLayout
         android:id="@+id/new_item_header_container"
@@ -67,7 +67,7 @@
             android:layout_weight="1" />
 
         <RadioButton
-            android:id="@+id/radioButton1"
+            android:id="@+id/groceries_select"
             style="@style/RadioWithTextOnTop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -79,7 +79,7 @@
             android:layout_weight="1" />
 
         <RadioButton
-            android:id="@+id/radioButton2"
+            android:id="@+id/personal_select"
             style="@style/RadioWithTextOnTop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -91,7 +91,7 @@
             android:layout_weight="1" />
 
         <RadioButton
-            android:id="@+id/radioButton3"
+            android:id="@+id/fun_select"
             style="@style/RadioWithTextOnTop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -103,7 +103,7 @@
             android:layout_weight="1" />
 
         <RadioButton
-            android:id="@+id/radioButton4"
+            android:id="@+id/other_select"
             style="@style/RadioWithTextOnTop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

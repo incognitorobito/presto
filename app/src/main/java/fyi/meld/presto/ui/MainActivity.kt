@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity(), LifecycleOwner, PrestoViewModel.Switch
 
     override fun onNewItemUIRequested() {
         //TODO Combine this and other UI request method into a simpler solution.
-        val newItemUI = NewItemFragment.newInstance()
+        val newItemUI = CartItemFragment.newInstance()
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.fragment_container, newItemUI)
@@ -76,7 +76,7 @@ class MainActivity : AppCompatActivity(), LifecycleOwner, PrestoViewModel.Switch
     }
 
     override fun onEditItemUIRequested(item: CartItem) {
-        val newItemUI = NewItemFragment.newInstance(item)
+        val newItemUI = CartItemFragment.newInstance(item)
         supportFragmentManager
             .beginTransaction()
             .replace(R.id.fragment_container, newItemUI)
