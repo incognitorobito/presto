@@ -16,7 +16,7 @@ class PrestoViewModel : ViewModel() {
 
     lateinit var priceEngine : PriceEngine
 
-    private lateinit var mCurrentTrip : StoreTrip
+    private var mCurrentTrip : StoreTrip
 
 
     init {
