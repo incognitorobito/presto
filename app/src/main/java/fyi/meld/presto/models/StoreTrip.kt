@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.databinding.Observable
 import fyi.meld.presto.utils.Constants
 
-class StoreTrip ()
+class StoreTrip (val startTime: String)
 {
     var items = arrayListOf<CartItem>()
     var localTaxRate : Float = 8.26f;

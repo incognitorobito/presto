@@ -2,10 +2,11 @@ package fyi.meld.presto.viewmodels
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.viewpager2.widget.ViewPager2
 import fyi.meld.presto.models.CartItem
 import fyi.meld.presto.models.StoreTrip
 import fyi.meld.presto.utils.PriceEngine
+import java.text.SimpleDateFormat
+import java.util.*
 
 class PrestoViewModel : ViewModel() {
     var storeTrip : MutableLiveData<StoreTrip> = MutableLiveData()
@@ -15,10 +16,15 @@ class PrestoViewModel : ViewModel() {
 
     lateinit var priceEngine : PriceEngine
 
-    private var mCurrentTrip = StoreTrip()
+    private lateinit var mCurrentTrip : StoreTrip
 
 
     init {
+
+        val sdf = SimpleDateFormat("EEE, d MMM yyyy, hh:mm", Locale.getDefault())
+        val storeTripStartTime: String = sdf.format(Date())
+
+        mCurrentTrip = StoreTrip(storeTripStartTime)
         notifyCartUpdated()
     }
 

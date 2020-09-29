@@ -36,6 +36,8 @@ class CartFragment: Fragment(), View.OnClickListener, PrestoViewModel.CartUpdate
         prestoVM = vita.with(VitaOwner.Single(requireActivity())).getViewModel<PrestoViewModel>()
         prestoVM.cartUpdatedHandler = this
 
+        cart_time_text.text = prestoVM.storeTrip.value?.startTime + " Store Trip"
+
         new_item_btn.setOnClickListener(this)
         setupCartItemsView()
     }
