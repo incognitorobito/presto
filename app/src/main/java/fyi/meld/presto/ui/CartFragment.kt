@@ -5,17 +5,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.text.isDigitsOnly
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.androidisland.vita.VitaOwner
 import com.androidisland.vita.vita
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import fyi.meld.presto.R
-import fyi.meld.presto.models.CartItem
-import fyi.meld.presto.utils.Presto
 import fyi.meld.presto.viewmodels.PrestoViewModel
 import kotlinx.android.synthetic.main.cart_fragment.*
-import java.lang.ref.WeakReference
+import kotlinx.android.synthetic.main.critical_info.*
+import kotlinx.android.synthetic.main.generic_input_diag.view.*
 
 class CartFragment: Fragment(), View.OnClickListener, PrestoViewModel.CartUpdatedHandler{
 
@@ -39,6 +40,7 @@ class CartFragment: Fragment(), View.OnClickListener, PrestoViewModel.CartUpdate
         cart_time_text.text = prestoVM.storeTrip.value?.startTime + " Store Trip"
 
         new_item_btn.setOnClickListener(this)
+
         setupCartItemsView()
     }
 
@@ -91,4 +93,5 @@ class CartFragment: Fragment(), View.OnClickListener, PrestoViewModel.CartUpdate
         @JvmStatic
         fun newInstance() = CartFragment()
     }
+
 }

@@ -17,6 +17,7 @@ import fyi.meld.presto.models.CartItem
 import fyi.meld.presto.utils.Constants.ItemTypeToDrawable
 import fyi.meld.presto.utils.ItemType
 import fyi.meld.presto.viewmodels.PrestoViewModel
+import kotlinx.android.synthetic.main.cart_fragment.*
 import kotlinx.android.synthetic.main.new_item_fragment.*
 
 /**
@@ -40,6 +41,8 @@ class CartItemFragment constructor(val selectedItem: CartItem?) : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         prestoVM = vita.with(VitaOwner.Single(requireActivity())).getViewModel<PrestoViewModel>()
+
+        view_extra_text.text = prestoVM.storeTrip.value?.startTime + " Store Trip"
 
         save_item_btn.setOnClickListener { view ->
             trySaveItem()

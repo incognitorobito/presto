@@ -9,4 +9,7 @@
     <string name="remove_item_hint">Remove this item from your cart?</string>
     <string name="edit_quantity_title">Change quantity of item</string>
     <string name="scanner_open_hint">Hover over an item and its price</string>
+    <string name="clear_cart_title">Clear cart</string>
+    <string name="clear_cart_hint">Do you want to remove all items in your cart?</string>
+    <string name="change_tax_rate_title">Change tax rate</string>
 </resources>

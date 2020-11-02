@@ -17,7 +17,7 @@ import fyi.meld.presto.models.StoreTrip
 import fyi.meld.presto.utils.Constants
 import fyi.meld.presto.utils.Constants.ItemTypeToDrawable
 import fyi.meld.presto.viewmodels.PrestoViewModel
-import kotlinx.android.synthetic.main.item_qty_diag.view.*
+import kotlinx.android.synthetic.main.generic_input_diag.view.*
 import java.lang.ref.WeakReference
 
 class CartItemAdapter(val baseContext : Context, private val vm : PrestoViewModel) : RecyclerView.Adapter<CartItemViewHolder>() {

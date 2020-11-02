@@ -16,15 +16,30 @@ class PrestoViewModel : ViewModel() {
 
     lateinit var priceEngine : PriceEngine
 
-    private var mCurrentTrip : StoreTrip
+    private lateinit var mCurrentTrip : StoreTrip
 
 
     init {
+        mCurrentTrip = StoreTrip(getTripStart())
+        notifyCartUpdated()
+    }
 
+    fun getTripStart() : String
+    {
         val sdf = SimpleDateFormat("EEE, d MMM yyyy, hh:mm", Locale.getDefault())
-        val storeTripStartTime: String = sdf.format(Date())
+        return sdf.format(Date())
+    }
 
-        mCurrentTrip = StoreTrip(storeTripStartTime)
+    fun resetCart()
+    {
+        mCurrentTrip.clearCart()
+        mCurrentTrip.startTime = getTripStart()
+        notifyCartUpdated()
+    }
+
+    fun updateTaxRate(taxRate: Float)
+    {
+        mCurrentTrip.localTaxRate = taxRate
         notifyCartUpdated()
     }
 

@@ -144,7 +144,7 @@ class PriceEngineFragment: Fragment(), PriceEngine.DetectionStatusHandler, View.
     {
         newItem = CartItem("", ItemType.Other, detectedPrice.first.toFloat())
         newItemBitmap = detectedPrice.second
-        val priceAfterTax = String.format("$%.2f", newItem?.getPriceAfterTax(8.26f))
+        val priceAfterTax = String.format("$%.2f", newItem?.getPriceAfterTax(prestoVM.storeTrip.value?.localTaxRate!!))
 
         price_tag_diag.animate()
             .withStartAction {

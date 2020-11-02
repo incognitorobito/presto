@@ -13,7 +13,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import fyi.meld.presto.R
 import fyi.meld.presto.models.CartItem
 import fyi.meld.presto.viewmodels.PrestoViewModel
-import kotlinx.android.synthetic.main.item_qty_diag.view.*
+import kotlinx.android.synthetic.main.generic_input_diag.view.*
 
 class CartItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), PopupMenu.OnMenuItemClickListener
 {
@@ -44,8 +44,8 @@ class CartItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), Po
 
     fun openQuantityDialog() {
         val inflater = LayoutInflater.from(baseContext)
-        val quantityDiagView = inflater.inflate(R.layout.item_qty_diag, null)
-        val quantityInput = quantityDiagView.edit_qty_input
+        val quantityDiagView = inflater.inflate(R.layout.generic_input_diag, null)
+        val quantityInput = quantityDiagView.basic_edit_input
         quantityInput.setText(cartItem?.qty.toString())
 
 
@@ -56,7 +56,7 @@ class CartItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), Po
                 dialog.cancel()
             }
             .setPositiveButton("Save") { dialog, which ->
-                if(quantityInput.text.toString().isNotEmpty() && quantityDiagView.edit_qty_input.text.toString().isDigitsOnly())
+                if(quantityInput.text.toString().isNotEmpty() && quantityDiagView.basic_edit_input.text.toString().isDigitsOnly())
                 {
                     cartItem?.qty = quantityInput.text.toString().toInt()
                     vm.updateCartTotals()

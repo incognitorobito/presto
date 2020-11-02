@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.databinding.Observable
 import fyi.meld.presto.utils.Constants
 
-class StoreTrip (val startTime: String)
+class StoreTrip (var startTime: String)
 {
     var items = arrayListOf<CartItem>()
     var localTaxRate : Float = 8.26f;
@@ -39,6 +39,12 @@ class StoreTrip (val startTime: String)
     fun removeFromCart(item : CartItem)
     {
         items.remove(item)
+        updateTotals()
+    }
+
+    fun clearCart()
+    {
+        items.clear()
         updateTotals()
     }
 
