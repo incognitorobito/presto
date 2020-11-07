@@ -3,11 +3,12 @@ package fyi.meld.presto.models
 import android.util.Log
 import androidx.databinding.Observable
 import fyi.meld.presto.utils.Constants
+import fyi.meld.presto.utils.Constants.SPRINGFIELD_TAX_RATE
 
 class StoreTrip (var startTime: String)
 {
     var items = arrayListOf<CartItem>()
-    var localTaxRate : Float = 8.26f;
+    var localTaxRate : Float = SPRINGFIELD_TAX_RATE;
 
     private var runningTotal : Float = 0.00f;
 
